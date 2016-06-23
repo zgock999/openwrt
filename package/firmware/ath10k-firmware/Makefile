@@ -39,7 +39,7 @@ endef
 
 QCA988X_FIRMWARE_FILE:=firmware-5.bin_10.2.4.97-1
 QCA988X_FIRMWARE_FILE_CT:=firmware-2-ct-full-community-16.bin-lede
-QCA99X0_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-7.bin-lede
+QCA99X0_FIRMWARE_FILE_CT:=firmware-5-ct-full-community-7.bin-lede.001
 
 define Download/ath10k-firmware-qca988x
   URL:=https://www.codeaurora.org/cgit/quic/qsdk/oss/firmware/ath10k-firmware/plain/10.2.4/
@@ -58,7 +58,7 @@ $(eval $(call Download,ath10k-firmware-qca988x-ct))
 define Download/ath10k-firmware-qca99x0-ct
   URL:=https://www.candelatech.com/downloads/ath10k-10-4/
   FILE:=$(QCA99X0_FIRMWARE_FILE_CT)
-  MD5SUM:=d01e24eaa7a6fb03db6b5bca44c2394a
+  MD5SUM:=eb710949ff79142954aadae24616169c
 endef
 $(eval $(call Download,ath10k-firmware-qca99x0-ct))
 
@@ -114,8 +114,8 @@ QCA99X0_BOARD_REV:=ddcec9efd245da9365c474f513a855a55f3ac7fe
 QCA99X0_BOARD_FILE:=board-2.bin.$(QCA99X0_BOARD_REV)
 
 define Download/qca99x0-board
-  URL:=https://www.codeaurora.org/cgit/quic/qsdk/oss/firmware/ath10k-firmware/plain/ath10k/QCA99X0/hw2.0
-  URL_FILE:=board-2.bin?id=ddcec9efd245da9365c474f513a855a55f3ac7fe
+  URL:=https://source.codeaurora.org/quic/qsdk/oss/firmware/ath10k-firmware/plain/ath10k/QCA99X0/hw2.0
+  URL_FILE:=board-2.bin?id=$(QCA99X0_BOARD_REV)
   FILE:=$(QCA99X0_BOARD_FILE)
   MD5SUM:=a2b3c653c2363a5641200051d6333d0a
 endef
