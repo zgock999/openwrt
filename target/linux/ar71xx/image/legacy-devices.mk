@@ -310,6 +310,11 @@ define LegacyDevice/DIR601A1
 endef
 LEGACY_DEVICES += DIR601A1
 
+define LegacyDevice/FR54RTR
+	DEVICE_TITLE := Frys FR-54RTR
+endef
+LEGACY_DEVICES += FR54RTR
+
 define LegacyDevice/DIR601B1
 	DEVICE_TITLE := D-Link DIR-601 rev. B1
 endef
@@ -562,6 +567,11 @@ define LegacyDevice/CAP4200AG
 	DEVICE_PACKAGES := kmod-ath9k
 endef
 LEGACY_DEVICES += CAP4200AG
+
+define LegacyDevice/EAP7660D
+	DEVICE_TITLE := Senao EAP7660D
+endef
+LEGACY_DEVICES += EAP7660D
 
 define LegacyDevice/WLR8100
         DEVICE_TITLE := Sitecom WLR-8100
