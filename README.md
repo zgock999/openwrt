@@ -4,13 +4,15 @@ LEDE-Source
 LEDE-Project Source codes.
 
 ## Description
-LEDE-Project source codes forked by musashino_205. Now, I am editing or planning to edit the LEDE firmware for the following router.
+LEDE-Project source codes forked by musashino_205. And I modified some of the soucecode for the following routers.
 
-- [x] BUFFALO WZR-900DHP (Modified the code so that you can set the LEDs.)
+- [x] BUFFALO WZR-900DHP (modified the code so that you can set the LEDs)
 
-- [x] BUFFALO WHR-G300N (Fix no partition defined.)
+- [x] BUFFALO WHR-G300N (fix no partition defined)
 
-- [x] NEXX WT1520 (4M) (Add reset button define.)
+- [x] NEXX WT1520 (4M) (add reset button define / informations provided by [mokunosuke](https://mokunosuke.wordpress.com/2014/10/20/windows%e4%bd%bf%e3%81%84%e3%81%aeopenwrt%ef%bc%88%e3%83%93%e3%83%ab%e3%83%89%e7%b7%a8%ef%bc%89/))
+
+- [x] Planex VR500 (add support / patches provided by [srchack](https://github.com/srchack))
 
 ## Compiled firmware
 Compiled firmwares of the LEDE-Project is not published yet.
@@ -22,7 +24,7 @@ Please refer to the [OpenWrt][] Wiki.
 
 ## Licence
 
-[GPLv2](https://github.com/musashino205/lede-source/blob/master/LICENSE)
+[GPL v2](https://github.com/musashino205/lede-source/blob/master/LICENSE)
 
 ## Author
 
