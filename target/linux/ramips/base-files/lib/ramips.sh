@@ -430,6 +430,9 @@ ramips_board_detect() {
 	*"VoCore")
 		name="vocore"
 		;;
+	*"VR500")
+		name="vr500"
+		;;
 	*"W150M")
 		name="w150m"
 		;;
