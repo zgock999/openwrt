@@ -73,7 +73,8 @@ get_status_led() {
 	cap324)
 		status_led="pcs:green:power"
 		;;
-	c-55)
+	c-55|\
+	c-60)
 		status_led="$board:green:pwr"
 		;;
 	cap4200ag)
@@ -109,6 +110,9 @@ get_status_led() {
 	dir-825-c1|\
 	dir-835-a1)
 		status_led="d-link:amber:power"
+		;;
+	dir-869-a1)
+		status_led="d-link:white:status"
 		;;
 	dlan-hotspot)
 		status_led="devolo:green:wifi"

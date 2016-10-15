@@ -482,6 +482,9 @@ ar71xx_board_detect() {
 	*C-55)
 		name="c-55"
 		;;
+	*C-60)
+		name="c-60"
+		;;
 	*CAP4200AG)
 		name="cap4200ag"
 		;;
@@ -535,6 +538,9 @@ ar71xx_board_detect() {
 		;;
 	*"DIR-835 rev. A1")
 		name="dir-835-a1"
+		;;
+	*"DIR-869 rev. A1")
+		name="dir-869-a1"
 		;;
 	*"dLAN Hotspot")
 		name="dlan-hotspot"

@@ -24,8 +24,7 @@ ramips_setup_rt3x5x_vlans()
 			lanports="$port:lan $lanports"
 		fi
 	done
-	ucidef_set_interfaces_lan_wan "eth0.1" "eth0.2"
-	ucidef_add_switch "rt305x" $lanports $wanports "6@eth0"
+	ucidef_add_switch "rt305x" $lanports $wanports "6t@eth0"
 }
 
 ramips_setup_interfaces()
@@ -59,7 +58,6 @@ ramips_setup_interfaces()
 		ucidef_add_switch_attr "switch0" "enable" "false"
 		ucidef_set_interface_lan "eth0"
 		;;
-	3g-6200nl|\
 	mlw221|\
 	mr-102n)
 		ucidef_set_interface_lan "eth0.2"

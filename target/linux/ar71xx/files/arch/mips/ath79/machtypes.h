@@ -47,6 +47,7 @@ enum ath79_mach_type {
 	ATH79_MACH_BHU_BXU2000N2_A1,		/* BHU BXU2000n-2 A1 */
 	ATH79_MACH_BSB,				/* Smart Electronics Black Swift board */
 	ATH79_MACH_C55,				/* AirTight Networks C-55 */
+	ATH79_MACH_C60,				/* AirTight Networks C-60 */
 	ATH79_MACH_CAP324,			/* PowerCloud CAP324 */
 	ATH79_MACH_CAP4200AG,			/* Senao CAP4200AG */
 	ATH79_MACH_CARAMBOLA2,			/* 8devices Carambola2 */
@@ -67,6 +68,7 @@ enum ath79_mach_type {
 	ATH79_MACH_DIR_825_B1,			/* D-Link DIR-825 rev. B1 */
 	ATH79_MACH_DIR_825_C1,			/* D-Link DIR-825 rev. C1 */
 	ATH79_MACH_DIR_835_A1,			/* D-Link DIR-835 rev. A1 */
+	ATH79_MACH_DIR_869_A1,			/* D-Link DIR-869 rev. A1 */
 	ATH79_MACH_DLAN_HOTSPOT,		/* devolo dLAN Hotspot */
 	ATH79_MACH_DLAN_PRO_1200_AC,		/* devolo dLAN pro 1200+ WiFi ac*/
 	ATH79_MACH_DLAN_PRO_500_WP,		/* devolo dLAN pro 500 Wireless+ */

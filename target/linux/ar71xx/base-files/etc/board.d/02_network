@@ -199,6 +199,10 @@ ar71xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan" "3:lan"
 		;;
+	c-60)
+		ucidef_add_switch "switch0" \
+			"0@eth0" "3:wan" "4:lan"
+		;;
 	cap324)
 		ucidef_set_interface_lan "eth0" "dhcp"
 		;;
@@ -285,6 +289,7 @@ ar71xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "3@eth1"
 		;;
+	dir-869-a1|\
 	epg5000|\
 	esr1750)
 		ucidef_add_switch "switch0" \
@@ -434,6 +439,7 @@ ar71xx_setup_macs()
 	esr900)
 		wan_mac=$(mtd_get_mac_ascii u-boot-env "wanaddr")
 		;;
+	dir-869-a1|\
 	mynet-n750)
 		wan_mac=$(mtd_get_mac_ascii devdata "wanmac")
 		;;
