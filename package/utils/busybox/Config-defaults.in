@@ -1398,7 +1398,7 @@ config BUSYBOX_DEFAULT_FEATURE_MOUNT_HELPERS
 	default y
 config BUSYBOX_DEFAULT_FEATURE_MOUNT_LABEL
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_MOUNT_NFS
 	bool
 	default n
