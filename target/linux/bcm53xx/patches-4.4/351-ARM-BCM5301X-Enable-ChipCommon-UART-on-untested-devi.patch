@@ -6,7 +6,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Signed-off-by: RafaŁEMiłecki <zajec5@gmail.com>
+Signed-off-by: RafaŁ Miłecki <zajec5@gmail.com>
 ---
  arch/arm/boot/dts/bcm4708-asus-rt-ac56u.dts       | 4 ++++
  arch/arm/boot/dts/bcm4708-asus-rt-ac68u.dts       | 4 ++++
