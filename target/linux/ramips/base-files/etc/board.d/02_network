@@ -89,6 +89,7 @@ ramips_setup_interfaces()
 	vr500|\
 	wf-2881|\
 	witi|\
+	whr-g300n|\
 	wl-wn575a3|\
 	wndr3700v5|\
 	wt1520|\
