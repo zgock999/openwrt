@@ -92,7 +92,6 @@ ramips_setup_interfaces()
 	whr-g300n|\
 	wl-wn575a3|\
 	wndr3700v5|\
-	wt1520|\
 	y1|\
 	youku-yk1|\
 	zbt-ape522ii|\
@@ -102,6 +101,10 @@ ramips_setup_interfaces()
 	zbt-wr8305rt)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "3:lan" "4:wan" "6@eth0"
+		;;
+	wt1520)
+		ucidef_add_switch "switch0" \
+			"0:lan" "4:wan" "6@eth0"
 		;;
 	whr-300hp2|\
 	whr-600d|\
