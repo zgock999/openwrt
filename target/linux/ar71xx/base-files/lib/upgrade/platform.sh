@@ -396,6 +396,7 @@ platform_check_image() {
 	tl-wr842n-v3|\
 	tl-wr941nd-v5|\
 	tl-wr941nd-v6|\
+	tl-wr940n-v4|\
 	tl-wr941nd)
 		local magic_ver="0100"
 
@@ -495,6 +496,7 @@ platform_check_image() {
 
 		return 0
 		;;
+	e2100l|\
 	mynet-rext|\
 	wrt160nl)
 		cybertan_check_image "$1" && return 0
