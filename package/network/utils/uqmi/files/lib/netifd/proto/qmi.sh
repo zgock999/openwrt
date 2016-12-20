@@ -42,6 +42,8 @@ proto_qmi_setup() {
 		proto_set_available "$interface" 0
 		return 1
 	}
+
+	device="$(readlink -f $device)"
 	[ -c "$device" ] || {
 		echo "The specified control device does not exist"
 		proto_notify_error "$interface" NO_DEVICE
@@ -76,6 +78,7 @@ proto_qmi_setup() {
 
 	uqmi -s -d "$device" --set-data-format 802.3
 	uqmi -s -d "$device" --wda-set-data-format 802.3
+	uqmi -s -d "$device" --sync
 
 	echo "Waiting for network registration"
 	while uqmi -s -d "$device" --get-serving-system | grep '"searching"' > /dev/null; do
