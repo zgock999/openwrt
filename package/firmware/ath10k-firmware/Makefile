@@ -8,14 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ath10k-firmware
+PKG_SOURCE_DATE:=2016-12-15
 PKG_SOURCE_VERSION:=fead2ed867af4e107265059b9f578179d7409867
-PKG_MIRROR_HASH:=47d6eb651c08e17772ed03451740ea7d73288b629385c0bd58c14a8675d2f89a
-PKG_VERSION:=2016-12-15-$(PKG_SOURCE_VERSION)
+PKG_MIRROR_HASH:=87fb1998a728b3182d208b978185232decf49d1c72d1ec37c529fa9139354dcb
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/kvalo/ath10k-firmware.git
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
@@ -179,6 +177,18 @@ define Download/qca99x0-board
 endef
 $(eval $(call Download,qca99x0-board))
 
+QCA9984_FIRMWARE_REV:=deb1832c56c706d0f6cb539113e09f0daaa52b5f
+QCA9984_FIRMWARE_FILE:=firmware-5.bin_10.4-3.3-00102
+QCA9984_FIRMWARE_FILE_DL:=$(QCA9984_FIRMWARE_FILE).$(QCA9984_FIRMWARE_REV)
+
+define Download/ath10k-qca9984-firmware
+  URL:=https://source.codeaurora.org/quic/qsdk/oss/firmware/ath10k-firmware/plain/ath10k/QCA9984/hw1.0/
+  URL_FILE:=$(QCA9984_FIRMWARE_FILE)?id=$(QCA9984_FIRMWARE_REV)
+  FILE:=$(QCA9984_FIRMWARE_FILE_DL)
+  HASH:=490ad52df76a4fa8004a3a8c21dd43bb8262dd2816df48a6408706b82491f299
+endef
+$(eval $(call Download,ath10k-qca9984-firmware))
+
 define Build/Compile
 
 endef
@@ -253,7 +263,7 @@ define Package/ath10k-firmware-qca9984/install
 		$(PKG_BUILD_DIR)/QCA9984/hw1.0/board-2.bin \
 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/board-2.bin
 	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/QCA9984/hw1.0/3.3/firmware-5.bin_10.4-3.3-00092 \
+		$(DL_DIR)/$(QCA9984_FIRMWARE_FILE_DL) \
 		$(1)/lib/firmware/ath10k/QCA9984/hw1.0/firmware-5.bin
 endef
 
