@@ -19,13 +19,6 @@ define Build/netgear-header
 		-o $@.new && mv $@.new $@
 endef
 
-define Build/poray-header
-	mkporayfw $(1) \
-		-f $@ \
-		-o $@.new; \
-		mv $@.new $@
-endef
-
 define Build/elecom-header
 	cp $@ $(KDIR)/v_0.0.0.bin
 	( \
@@ -43,6 +36,7 @@ endef
 
 define Device/ArcherC20i
   DTS := ArcherC20i
+  SUPPORTED_DEVICES := c20i
   KERNEL := $(KERNEL_DTB)
   KERNEL_INITRAMFS := $(KERNEL_DTB) | tplink-header ArcherC20i -c
   IMAGE/sysupgrade.bin := append-kernel | tplink-header ArcherC20i -j | append-metadata
@@ -52,6 +46,7 @@ TARGET_DEVICES += ArcherC20i
 
 define Device/ArcherC50
   DTS := ArcherC50
+  SUPPORTED_DEVICES := c50
   KERNEL := $(KERNEL_DTB)
   KERNEL_INITRAMFS := $(KERNEL_DTB) | tplink-header ArcherC50 -c
   IMAGE/sysupgrade.bin := append-kernel | tplink-header ArcherC50 -j | append-metadata
@@ -87,7 +82,6 @@ define Device/wt3020-4M
   BLOCKSIZE := 4k
   IMAGE_SIZE := $(ralink_default_fw_size_4M)
   IMAGES += factory.bin
-  SUPPORTED_DEVICES := wt3020
   IMAGE/factory.bin := $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | \
 	poray-header -B WT3020 -F 4M
   DEVICE_TITLE := Nexx WT3020 (4MB)
@@ -97,7 +91,6 @@ TARGET_DEVICES += wt3020-4M
 define Device/wt3020-8M
   DTS := WT3020-8M
   IMAGES += factory.bin
-  SUPPORTED_DEVICES := wt3020
   IMAGE/factory.bin := $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | \
 	poray-header -B WT3020 -F 8M
   DEVICE_TITLE := Nexx WT3020 (8MB)
