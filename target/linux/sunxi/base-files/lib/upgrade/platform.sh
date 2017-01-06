@@ -1,20 +1,12 @@
 platform_check_image() {
-	[ "$#" -gt 1 ] && return 1
-
-	case "$(get_magic_word "$1")" in
-		eb48|eb63) return 0;;
-		*)
-			echo "Invalid image type"
-			return 1
-		;;
-	esac
+	true
 }
 
 platform_copy_config() {
 	local partdev
 
-	if export_partdevice partdev 1; then
-		mount -t ext4 -o rw,noatime "/dev/$partdev" /mnt
+	if export_partdevice partdev -1; then
+		mount -t vfat -o rw,noatime "/dev/$partdev" /mnt
 		cp -af "$CONF_TAR" /mnt/
 		umount /mnt
 	fi
@@ -23,7 +15,7 @@ platform_copy_config() {
 platform_do_upgrade() {
 	local diskdev partdev ibs diff
 
-	if export_bootdevice && export_partdevice diskdev 0; then
+	if export_bootdevice && export_partdevice diskdev -2; then
 		sync
 		if [ "$SAVE_PARTITIONS" = "1" ]; then
 			get_partitions "/dev/$diskdev" bootdisk
@@ -50,8 +42,11 @@ platform_do_upgrade() {
 				return 0
 			fi
 
+			#write uboot image
+			get_image "$@" | dd of="$diskdev" bs=1024 skip=8 seek=8 conv=notrunc
 			#iterate over each partition from the image and write it to the boot disk
 			while read part start size; do
+				part="$(($part - 2))"
 				if export_partdevice partdev $part; then
 					echo "Writing image to /dev/$partdev..."
 					get_image "$@" | dd of="/dev/$partdev" ibs="$ibs" obs=1M skip="$start" count="$size" conv=fsync
