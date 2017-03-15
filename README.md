@@ -1,11 +1,11 @@
 LEDE-Source
 ====
 
-LEDE-Project Source codes.
+LEDE-Project Source codes (Fork).
 Please refer to the wiki page for detailed explanation(Japanese only).
 
 ## Description
-LEDE-Project source codes forked by musashino_205. And I modified some of the soucecode for the following routers.
+Modified some of the soucecode for the following routers.
 
 - [x] BUFFALO WZR-900DHP (fix no LEDs defined)
 
@@ -16,7 +16,7 @@ LEDE-Project source codes forked by musashino_205. And I modified some of the so
 - [x] Planex VR500 (add support / patches provided by [srchack](https://github.com/srchack))
 
 ## Compiled firmware
-Compiled firmwares of the LEDE-Project is not published yet.
+Compiled firmwares of this repository is not published yet.
 
 ## Install
 Please refer to the [OpenWrt][] Wiki.
