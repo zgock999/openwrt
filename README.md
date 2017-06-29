@@ -16,7 +16,7 @@ Modified some of the soucecode for the following routers.
 - [x] Planex VR500 (add support / patches provided by [srchack](https://github.com/srchack))
 
 ## Compiled firmware
-Compiled firmwares of this repository is not published yet.
+[taiha.net/jenkins](https://taiha.net/jenkins/)
 
 ## Install
 Please refer to the [OpenWrt][] Wiki.
