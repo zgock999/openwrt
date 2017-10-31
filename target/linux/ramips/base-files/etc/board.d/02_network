@@ -148,10 +148,13 @@ ramips_setup_interfaces()
 			"0:wan" "1:lan" "2:lan" "3:lan" "4:lan" "6t@eth0"
 		;;
 	rt-n15|\
-	wl-351|\
-	wn-g300dgr)
+	wl-351)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "3:lan" "4:wan" "5@eth0"
+		;;
+	wn-g300dgr)
+		ucidef_add_switch "switch0" \
+			"0:lan" "1:lan" "2:lan" "3:wan" "5@eth0"
 		;;
 	asl26555-8M|\
 	asl26555-16M|\
