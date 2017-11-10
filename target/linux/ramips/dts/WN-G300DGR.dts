@@ -41,6 +41,35 @@
 		};
 	};
 
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		power-amber {
+			label = "wn-g300dgr:amber:power";
+			gpios = <&gpio0 8 GPIO_ACTIVE_LOW>;
+		};
+
+		power-blue {
+			label = "wn-g300dgr:blue:power";
+			gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+		};
+
+		wps-blue {
+			label = "wn-g300dgr:blue:wps";
+			gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+		};
+
+		wps-green {
+			label = "wn-g300dgr:green:wps";
+			gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+		};
+
+		filtering {
+			label = "wn-g300dgr:blue:filtering";
+			gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+		};
+	};
+
 	rtl8366rb {
 		compatible = "realtek,rtl8366rb";
 		gpio-sda = <&gpio0 1 GPIO_ACTIVE_HIGH>;
