@@ -790,7 +790,8 @@ define Device/wn-g300dgr
   BLOCKSIZE := 64k
   IMAGE_SIZE := $(ralink_default_fw_size_4M)
   DEVICE_TITLE := IO-DATA WN-G300DGR
-  DEVICE_PACKAGES := kmod-switch-rtl8366rb kmod-swconfig swconfig
+  DEVICE_PACKAGES := kmod-switch-rtl8366rb kmod-swconfig swconfig \
+    kmod-usb-core kmod-usb-dwc2
 endef
 TARGET_DEVICES += wn-g300dgr
 
