@@ -94,13 +94,6 @@
 			linux,code = <BTN_0>;
 			linux,input-type = <EV_SW>;
 		};
-
-		ap {
-			label = "ap";
-			gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
-			linux,code = <BTN_0>;
-			linux,input-type = <EV_SW>;
-		};
 	};
 
 	rtl8366rb {
