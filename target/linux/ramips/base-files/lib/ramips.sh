@@ -740,7 +740,9 @@ ramips_board_detect() {
 		name="youku-yk1"
 		;;
 	*)
-		name="generic"
+		name="$(strings /proc/device-tree/compatible | head -1)"
+		name="${name##*,}"
+		name="${name:-generic}"
 		;;
 	esac
 
