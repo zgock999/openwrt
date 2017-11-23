@@ -479,6 +479,9 @@ wrh-300cr)
 wndr3700v5)
 	ucidef_set_led_default "power" "POWER" "$boardname:green:power" "0"
 	;;
+wn-g300dgr)
+	ucidef_set_led_default "power" "POWER" "$board:blue:power" "1"
+	;;
 wt3020-4M|\
 wt3020-8M)
 	ucidef_set_led_default "power" "power" "wt3020:blue:power" "0"
