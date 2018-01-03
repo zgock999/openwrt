@@ -1,7 +1,7 @@
-LEDE-Source
+openwrt
 ====
 
-LEDE-Project Source codes (Fork).
+OpenWrt source code (Fork).
 Please refer to the wiki page for detailed explanation(Japanese only).
 
 ## Description
@@ -25,7 +25,7 @@ Please refer to the [OpenWrt][] Wiki.
 
 ## Licence
 
-[GPL v2](https://github.com/musashino205/lede-source/blob/master/LICENSE)
+[GPL v2](LICENSE)
 
 ## Author
 
