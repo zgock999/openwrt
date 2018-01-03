@@ -137,6 +137,7 @@ get_status_led() {
 	wl-330n|\
 	wl-330n3g|\
 	wli-tx4-ag300n|\
+	wn-g300dgr|\
 	y1|\
 	y1s|\
 	youku-yk1)

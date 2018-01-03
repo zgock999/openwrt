@@ -178,6 +178,7 @@ platform_check_image() {
 	wlr-6000|\
 	wmdr-143n|\
 	wmr-300|\
+	wn-g300dgr|\
 	wn3000rpv3|\
 	wnce2001|\
 	wndr3700v5|\

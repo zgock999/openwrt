@@ -18,40 +18,33 @@ define BuildFirmware/DCS930/squashfs
 endef
 BuildFirmware/DCS930/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3))
 
-# sign Buffalo images
-define BuildFirmware/Buffalo
-	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
-		buffalo-enc -p $(3) -v 1.76 \
-			-i $(KDIR)/vmlinux-$(2).uImage \
-			-o $(KDIR)/vmlinux-$(2).uImage.enc; \
-		buffalo-enc -p $(3) -v 1.76 \
-			-i $(KDIR)/root.$(1) \
-			-o $(KDIR)/root.$(2).enc; \
-		buffalo-tag -b $(3) -p $(3) -a ram -v 1.76 -m 1.01 \
-			-l mlang8 -f 1 -r EU \
-			-i $(KDIR)/vmlinux-$(2).uImage.enc \
-			-i $(KDIR)/root.$(2).enc \
-			-o $(call imgname,$(1),$(2))-factory-EU.bin; \
-	fi
+define Build/buffalo-factory-image
+	$(eval devname=$(word 1,$(1)))
+	$(eval product=$(word 2,$(1)))
+	$(eval region=$(word 3,$(1)))
+	$(eval language=$(word 4,$(1)))
+	$(STAGING_DIR_HOST)/bin/buffalo-enc -p $(product) -v $(BUFFALO_TAG_VERSION) \
+		-i $(KDIR)/$(devname)-kernel.bin -o $(KDIR)/$(devname)-kernel.bin.enc
+	$(STAGING_DIR_HOST)/bin/buffalo-enc -p $(product) -v $(BUFFALO_TAG_VERSION) \
+		-i $(KDIR)/root.squashfs -o $(KDIR)/root.squashfs.enc
+	$(STAGING_DIR_HOST)/bin/buffalo-tag \
+		-b $(product) -p $(product) -a $(BUFFALO_TAG_PLATFORM) \
+		-v $(BUFFALO_TAG_VERSION) -m $(BUFFALO_TAG_MINOR) \
+		-f 1 -r $(region) -l $(language) \
+		-i $(KDIR)/$(devname)-kernel.bin.enc \
+		-i $(KDIR)/root.squashfs.enc \
+		-o $@
 endef
 
-# FIXME: this looks broken
-buffalo_whrg300n_mtd_size=3801088
-define BuildFirmware/WHRG300N/squashfs
-	$(call BuildFirmware/Default4M/$(1),$(1),whr-g300n,WHR-G300N)
-	# the following line has a bad argument 3 ... the old Makefile was already broken	
-	$(call BuildFirmware/Buffalo,$(1),whr-g300n,whr-g300n)
-	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
-		( \
-			echo -n -e "# Airstation FirmWare\nrun u_fw\nreset\n\n" | \
-				dd bs=512 count=1 conv=sync; \
-			dd if=$(call sysupname,$(1),whr-g300n); \
-		) > $(KDIR)/whr-g300n-tftp.tmp && \
-		buffalo-tftp -i $(KDIR)/whr-g300n-tftp.tmp \
-			-o $(call imgname,$(1),whr-g300n)-tftp.bin; \
-	fi
+define Build/buffalo-tftp-image
+	( \
+		echo -n -e "# Airstation FirmWare\nrun u_fw\nreset\n\n" | \
+			dd bs=512 count=1 conv=sync; \
+		dd if=$@; \
+	) > $@.tmp && \
+	$(STAGING_DIR_HOST)/bin/buffalo-tftp -i $@.tmp -o $@.new
+	mv $@.new $@
 endef
-BuildFirmware/WHRG300N/initramfs=$(call BuildFirmware/OF/initramfs,$(1),whr-g300n,WHR-G300N)
 
 kernel_size_wl341v3=917504
 rootfs_size_wl341v3=2949120
@@ -84,7 +77,6 @@ endef
 Image/Build/Profile/DCS930=$(call BuildFirmware/DCS930/$(1),$(1),dcs-930,DCS-930)
 Image/Build/Profile/DCS930LB1=$(call BuildFirmware/DCS930/$(1),$(1),dcs-930l-b1,DCS-930L-B1)
 Image/Build/Profile/WL-341V3=$(call BuildFirmware/WL-341V3/$(1),$(1))
-Image/Build/Profile/WHRG300N=$(call BuildFirmware/WHRG300N/$(1),$(1))
 
 define LegacyDevice/ALL02393G
   DEVICE_TITLE := Allnet ALL0239-3G 
@@ -112,7 +104,20 @@ endef
 LEGACY_DEVICES += WL-341V3
 
 
-define LegacyDevice/WHRG300N
+define Device/whr-g300n
+  DTS := WHR-G300N
+  BLOCKSIZE := 64k
+  IMAGE_SIZE := 3801088
+  BUFFALO_TAG_PLATFORM := ram
+  BUFFALO_TAG_VERSION := 1.76
+  BUFFALO_TAG_MINOR := 1.01
   DEVICE_TITLE := Buffalo WHR-G300N
+  IMAGES += factory-EU.bin factory-JP.bin tftp.bin
+  IMAGE/factory-EU.bin := \
+    buffalo-factory-image whr-g300n WHR-G300N EU mlang8
+  IMAGE/factory-JP.bin := \
+    buffalo-factory-image whr-g300n WHR-G300N JP jp
+  IMAGE/tftp.bin := \
+    $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | buffalo-tftp-image
 endef
-LEGACY_DEVICES += WHRG300N
+TARGET_DEVICES += whr-g300n
