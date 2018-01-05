@@ -47,8 +47,8 @@
 					function = "gpio";
 					drive-strength = <2>;
 					bias-pull-up;
-				}
-			}
+				};
+			};
 
 			i2c4_pins: i2c4_pinmux {
 				pins = "gpio12", "gpio13";
@@ -228,7 +228,7 @@
 						label = "APPSBL_1";
 						reg = <0x1d0000 70000>;
 						read-only;
-					}
+					};
 				};
 			};
 		};
@@ -289,12 +289,12 @@
 					rootfs@0 {
 						label = "rootfs";
 						reg = <0x0000000 0x4000000>;
-					}
+					};
 
 					rootfs_1@4000000 {
 						label = "rootfs_1";
 						reg = <0x4000000 0x4000000>;
-					}
+					};
 				};
 			};
 		};
@@ -398,7 +398,7 @@
 			gpios = <&qcom_pinmux 55 GPIO_ACTIVE_LOW>;
 			linux,code = <BTN_0>;
 			linux,input-type = <EV_SW>;
-		}
+		};
 
 		router {
 			label = "router";
@@ -469,7 +469,7 @@
 			label = "wxr-2533dhp:white:power";
 			gpios = <&qcom_pinmux 53 GPIO_ACTIVE_HIGH>;
 		};
-	}
+	};
 };
 
 &adm_dma {
