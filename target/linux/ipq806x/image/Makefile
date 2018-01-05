@@ -304,4 +304,5 @@ define Device/WXR-2533DHP
 	PAGESIZE := 2048
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0
 endef
+TARGET_DEVICES += WXR-2533DHP
 $(eval $(call BuildImage))
