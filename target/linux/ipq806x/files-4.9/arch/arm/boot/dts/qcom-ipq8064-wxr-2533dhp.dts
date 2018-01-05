@@ -26,10 +26,10 @@
 		serial0 = &gsbi4_serial;
 		mdio-gpio0 = &mdio0;
 
-		led-boot = &power;
-		led-failsafe = &power;
-		led-running = &power;
-		led-upgrade = &power;
+		led-boot = &power_white;
+		led-failsafe = &diag;
+		led-running = &power_white;
+		led-upgrade = &diag;
 	};
 
 	chosen {
@@ -430,42 +430,42 @@
 			gpios = <&qcom_pinmux 8 GPIO_ACTIVE_HIGH>;
 		};
 
-		diag {
+		diag: diag {
 			label = "wxr-2533dhp:orange:diag";
 			gpios = <&qcom_pinmux 9 GPIO_ACTIVE_HIGH>;
 		};
 
-		internet0 {
+		internet_orange {
 			label = "wxr-2533dhp:orange:internet";
 			gpios = <&qcom_pinmux 16 GPIO_ACTIVE_HIGH>;
 		};
 
-		internet1 {
+		internet_white {
 			label = "wxr-2533dhp:white:internet";
 			gpios = <&qcom_pinmux 22 GPIO_ACTIVE_HIGH>;
 		};
 
-		wireless0 {
+		wireless_orange {
 			label = "wxr-2533dhp:orange:wireless";
 			gpios = <&qcom_pinmux 23 GPIO_ACTIVE_HIGH>;
 		};
 
-		wireless1 {
+		wireless_white {
 			label = "wxr-2533dhp:white:wireless";
 			gpios = <&qcom_pinmux 24 GPIO_ACTIVE_HIGH>;
 		};
 
-		router0 {
+		router_orange {
 			label = "wxr-2533dhp:orange:router";
 			gpios = <&qcom_pinmux 25 GPIO_ACTIVE_HIGH>;
 		};
 
-		router1 {
+		router_white {
 			label = "wxr-2533dhp:white:router";
 			gpios = <&qcom_pinmux 26 GPIO_ACTIVE_HIGH>;
 		};
 
-		power {
+		power_white: power_white {
 			label = "wxr-2533dhp:white:power";
 			gpios = <&qcom_pinmux 53 GPIO_ACTIVE_HIGH>;
 		};
