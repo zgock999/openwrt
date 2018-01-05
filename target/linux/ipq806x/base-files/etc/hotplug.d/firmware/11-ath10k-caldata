@@ -84,7 +84,8 @@ case "$FIRMWARE" in
 	nbg6817)
 		ath10kcal_extract "0:ART" 4096 12064
 		;;
-	vr2600v)
+	vr2600v |\
+	wxr-2533dhp)
 		ath10kcal_extract "ART" 4096 12064
 		;;
 	esac
@@ -107,7 +108,8 @@ case "$FIRMWARE" in
 	nbg6817)
 		ath10kcal_extract "0:ART" 20480 12064
 		;;
-	vr2600v)
+	vr2600v |\
+	wxr-2533dhp)
 		ath10kcal_extract "ART" 20480 12064
 		;;
 	esac

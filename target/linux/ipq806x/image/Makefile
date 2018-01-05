@@ -294,4 +294,14 @@ define Device/AP-DK04.1-C1
 endef
 TARGET_DEVICES += AP-DK04.1-C1
 
+define Device/WXR-2533DHP
+	$(call Device/LegacyImage)
+	$(call Device/UbiFit)
+	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
+	BLOCKSIZE := 128k
+	BOARD_NAME := wxr-2533dhp
+	DEVICE_TITLE := Buffalo WXR-2533DHP
+	PAGESIZE := 2048
+	DEVICE_PACKAGES := ath10k-firmware-qca99x0
+endef
 $(eval $(call BuildImage))

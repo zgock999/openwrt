@@ -42,6 +42,12 @@ vr2600v)
 	ucidef_set_led_wlan "wlan5g" "WLAN5G" "${board}:white:wlan5g" "phy1tpt"
 	ucidef_set_led_switch "wan" "wan" "${board}:white:wan" "switch0" "0x20"
 	;;
+wxr-2533dhp)
+	ucidef_set_led_usbport "usb" "USB" "${board}:green:usb" "usb1-port1" "usb3-port1"
+	ucidef_set_led_switch "lan" "lan" "${board}:white:router" "switch0" "0x1e"
+	ucidef_set_led_wlan "wireless" "WLAN" "${board}:white:wireless" "phy0tpt" "phy1tpt"
+	ucidef_set_led_switch "wan" "wan" "${board}:white:wan" "eth0"
+	;;
 *)
 	;;
 esac
