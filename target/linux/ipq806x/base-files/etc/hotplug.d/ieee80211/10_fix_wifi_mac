@@ -17,10 +17,11 @@ case "$board" in
 		;;
 	d7800 |\
 	r7500v2 |\
-	r7800 |\
-	wxr-2533dhp)
+	r7800)
 		echo $(macaddr_add $(mtd_get_mac_binary art 6)  $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
 		;;
+	wxr-2533dhp)
+		echo $(macaddr_add $(mtd_get_mac_binary ART 6)  $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
 	ea8500)
 		echo $(macaddr_add $(mtd_get_mac_ascii devinfo hw_mac_addr) $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
 		;;

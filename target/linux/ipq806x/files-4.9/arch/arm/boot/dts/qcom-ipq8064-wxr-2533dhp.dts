@@ -212,7 +212,7 @@
 						read-only;
 					};
 
-					ART@180000 {
+					ART: ART@180000 {
 						label = "ART";
 						reg = <0x180000 40000>;
 						read-only;
@@ -335,6 +335,8 @@
 			pinctrl-0 = <&rgmii2_pins>;
 			pinctrl-names = "default";
 
+			mtd-mac-address = <&ART 0x6>
+
 			fixed-link {
 				speed = <1000>;
 				full-duplex;
@@ -345,6 +347,8 @@
 			status = "ok";
 			phy-mode = "sgmii";
 			qcom,id = <2>;
+
+			mtd-mac-address = <&ART 0x0>
 
 			fixed-link {
 				speed = <1000>;
