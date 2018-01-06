@@ -184,49 +184,49 @@
 
 					SSD@a0000 {
 						label = "SSD";
-						reg = <0xa0000 10000>;
+						reg = <0xa0000 0x10000>;
 						read-only;
 					};
 
 					TZ@b0000 {
 						label = "TZ";
-						reg = <0xb0000 30000>;
+						reg = <0xb0000 0x30000>;
 						read-only;
 					};
 
 					RPM@e0000 {
 						label = "RPM";
-						reg = <0xe0000 20000>;
+						reg = <0xe0000 0x20000>;
 						read-only;
 					};
 
 					APPSBL@100000 {
 						label = "APPSBL";
-						reg = <0x100000 70000>;
+						reg = <0x100000 0x70000>;
 						read-only;
 					};
 
 					APPSBLENV@170000 {
 						label = "APPSBLENV";
-						reg = <0x170000 10000>;
+						reg = <0x170000 0x10000>;
 						read-only;
 					};
 
 					ART: ART@180000 {
 						label = "ART";
-						reg = <0x180000 40000>;
+						reg = <0x180000 0x40000>;
 						read-only;
 					};
 
 					BOOTCONFIG@1c0000 {
 						label = "BOOTCONFIG";
-						reg = <0x1c0000 10000>;
+						reg = <0x1c0000 0x10000>;
 						read-only;
 					};
 
 					APPSBL_1@1d0000 {
 						label = "APPSBL_1";
-						reg = <0x1d0000 70000>;
+						reg = <0x1d0000 0x70000>;
 						read-only;
 					};
 				};
