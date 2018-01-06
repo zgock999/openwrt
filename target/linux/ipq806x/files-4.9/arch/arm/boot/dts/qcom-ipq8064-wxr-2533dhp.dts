@@ -33,9 +33,8 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyMSM0,115200n8 root=mtd:rootfs rootfstype=squashfs";
+		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=0 root=mtd:rootfs rootfstype=squashfs";
 		linux,stdout-path = "serial0:115200n8";
-		append-rootblock = "ubi.mtd=";  /* append to bootargs adding the root deviceblock nbr from bootloader */
 	};
 
 	soc {
