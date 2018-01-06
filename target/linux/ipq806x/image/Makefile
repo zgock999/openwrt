@@ -5,6 +5,15 @@ include $(INCLUDE_DIR)/image.mk
 
 UBIFS_OPTS = -m 2048 -e 124KiB -c 4096 -U -F
 
+define Build/mkbuffaloimg
+	$(STAGING_DIR_HOST)/bin/mkbuffaloimg -B $(DEV_NAME) \
+		-R $$(($(subst k, * 1024,$(ROOTFS_SIZE)))) \
+		-K $$(($(subst k, * 1024,$(KERNEL_SIZE)))) \
+		-i $@ -o $@.new
+	mv $@.new $@
+endef
+DEVICE_VARS += ROOTFS_SIZE DEV_NAME
+
 define Image/Prepare
 	$(CP) $(LINUX_DIR)/vmlinux $(KDIR)/vmlinux-unstripped.elf
 endef
@@ -300,8 +309,14 @@ define Device/WXR-2533DHP
 	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
 	BLOCKSIZE := 128k
 	BOARD_NAME := wxr-2533dhp
+	DEV_NAME := WXR-2533DHP
 	DEVICE_TITLE := Buffalo WXR-2533DHP
 	PAGESIZE := 2048
+	KERNEL_IN_UBI := 1
+	KERNEL_SIZE := 4096k
+	ROOTFS_SIZE := 16384k
+	IMAGES += factory.bin
+	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0
 endef
 TARGET_DEVICES += WXR-2533DHP
