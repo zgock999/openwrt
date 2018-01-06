@@ -21,7 +21,7 @@ case "$board" in
 		echo $(macaddr_add $(mtd_get_mac_binary art 6)  $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
 		;;
 	wxr-2533dhp)
-		echo $(macaddr_add $(mtd_get_mac_binary ART 6)  $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
+		echo $(macaddr_add $(mtd_get_mac_binary ART 0x18)  $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
 	ea8500)
 		echo $(macaddr_add $(mtd_get_mac_ascii devinfo hw_mac_addr) $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
 		;;
