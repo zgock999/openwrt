@@ -466,7 +466,7 @@
 
 		router_white {
 			label = "wxr-2533dhp:white:router";
-			gpios = <&qcom_pinmux 26 GPIO_ACTIVE_HIGH>;
+			gpios = <&qcom_pinmux 26 GPIO_ACTIVE_LOW>;
 		};
 
 		power_white: power_white {
