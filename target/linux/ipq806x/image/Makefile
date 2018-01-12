@@ -17,7 +17,7 @@ DEVICE_VARS += ROOTFS_SIZE DEV_NAME
 define Build/buffalofakeroot
 	rm -rf $(BOARD_NAME).fakefs $(BOARD_NAME).fakesquashfs
 	mkdir $(BOARD_NAME).fakefs
-	$(STAGING_DIR)/bin/mksquashfs4 \
+	$(STAGING_DIR_HOST)/bin/mksquashfs4 \
 		$(BOARD_NAME).fakefs $(BOARD_NAME).fakesquashfs \
 		-noappend -root-owned -nopad -b 65536 \
 		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
