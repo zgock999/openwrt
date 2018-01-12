@@ -33,7 +33,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=0 root=ubi0:rootfs rootfstype=squashfs";
+		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=0 root=/dev/ubiblock0_2 rootfstype=squashfs";
 		linux,stdout-path = "serial0:115200n8";
 	};
 
