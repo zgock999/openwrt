@@ -14,12 +14,20 @@ define Build/mkbuffaloimg
 endef
 DEVICE_VARS += ROOTFS_SIZE DEV_NAME
 
+define Build/buffalofakeroot
+	rm -rf $(BOARD_NAME).fakefs $(BOARD_NAME).fakesquashfs
+	mkdir $(BOARD_NAME).fakefs
+	$(STAGING_DIR)/bin/mksquashfs4 \
+		$(BOARD_NAME).fakefs $(BOARD_NAME).fakesquashfs \
+		-noappend -root-owned -nopad -b 65536 \
+		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
+endef
+
 define Build/buffalocksum
-	$(eval bufcksum=$(shell od -A n -t u1 $(IMAGE_ROOTFS) | \
+	$(eval bufcksum=$(shell od -A n -t u1 $(BOARD_NAME).fakesquashfs | \
 		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}'))
-	$(CP) $(IMAGE_ROOTFS) $(IMAGE_ROOTFS).ext
 	echo -ne "\x$(bufcksum)" \
-		>> $(IMAGE_ROOTFS).ext
+		>> $(BOARD_NAME).fakesquashfs
 endef
 
 define Build/buffalo-append-ubi
@@ -29,7 +37,7 @@ define Build/buffalo-append-ubi
 		$(if $(ROOTFS_VOLNAME),--rootfs-name $(ROOTFS_VOLNAME)) \
 		$(if $(DATA_VOLNAME),--rootfs-data-name $(DATA_VOLNAME)) \
 		$(foreach part,$(UBINIZE_PARTS),--part $(part)) \
-		$(IMAGE_ROOTFS).ext \
+		$(IMAGE_ROOTFS) \
 		$@.tmp \
 		-p $(BLOCKSIZE:%k=%KiB) -m $(PAGESIZE) \
 		$(if $(SUBPAGESIZE),-s $(SUBPAGESIZE)) \
@@ -339,10 +347,9 @@ define Device/WXR-2533DHP
 	KERNEL_IN_UBI := 1
 	KERNEL_SIZE := 4096k
 	ROOTFS_SIZE := 16384k
-	ROOTFS_VOLNAME := ubi_rootfs
-	DATA_VOLNAME := ubi_rootfs_data
+	UBINIZE_PARTS = ubi_rootfs=$$(BOARD_NAME).fakeroot
 	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
-	IMAGE/cksum.ubi := buffalocksum | buffalo-append-ubi
+	IMAGE/cksum.ubi := buffalofakeroot | buffalocksum | append-ubi
 	IMAGE/nand-factory.ubi := append-ubi
 	IMAGE/nand-sysupgrade.tar := sysupgrade-tar | append-metadata
 	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
