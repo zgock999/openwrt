@@ -339,6 +339,8 @@ define Device/WXR-2533DHP
 	KERNEL_IN_UBI := 1
 	KERNEL_SIZE := 4096k
 	ROOTFS_SIZE := 16384k
+	ROOTFS_VOLNAME := ubi_rootfs
+	DATA_VOLNAME := ubi_rootfs_data
 	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
 	IMAGE/cksum.ubi := buffalocksum | buffalo-append-ubi
 	IMAGE/nand-factory.ubi := append-ubi
