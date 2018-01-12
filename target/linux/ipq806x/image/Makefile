@@ -21,6 +21,10 @@ define Build/buffalofakeroot
 		$(KDIR)/$(BOARD_NAME).fakefs $(KDIR)/$(BOARD_NAME).fakesquashfs \
 		-noappend -root-owned -nopad -b 65536 \
 		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
+	$(eval bufcksum=$(shell od -A n -t u1 $(KDIR)/$(BOARD_NAME).fakesquashfs | \
+		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}'))
+	echo -ne "\x$(bufcksum)" \
+		>> $(KDIR)/$(BOARD_NAME).fakesquashfs
 endef
 
 define Build/buffalocksum
