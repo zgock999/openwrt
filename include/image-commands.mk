@@ -178,6 +178,8 @@ define Build/append-ubi
 	sh $(TOPDIR)/scripts/ubinize-image.sh \
 		$(if $(UBOOTENV_IN_UBI),--uboot-env) \
 		$(if $(KERNEL_IN_UBI),--kernel $(IMAGE_KERNEL)) \
+		$(if $(ROOTFS_VOLNAME),--rootfs-name $(ROOTFS_VOLNAME)) \
+		$(if $(DATA_VOLNAME),--rootfs-data-name $(DATA_VOLNAME)) \
 		$(foreach part,$(UBINIZE_PARTS),--part $(part)) \
 		$(IMAGE_ROOTFS) \
 		$@.tmp \

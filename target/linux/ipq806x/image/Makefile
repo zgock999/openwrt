@@ -14,6 +14,31 @@ define Build/mkbuffaloimg
 endef
 DEVICE_VARS += ROOTFS_SIZE DEV_NAME
 
+define Build/buffalocksum
+	$(eval bufcksum=$(shell od -A n -t u1 $(IMAGE_ROOTFS) | \
+		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}'))
+	$(CP) $(IMAGE_ROOTFS) $(IMAGE_ROOTFS).ext
+	echo -ne "\x$(bufcksum)" \
+		>> $(IMAGE_ROOTFS).ext
+endef
+
+define Build/buffalo-append-ubi
+	sh $(TOPDIR)/scripts/ubinize-image.sh \
+		$(if $(UBOOTENV_IN_UBI),--uboot-env) \
+		$(if $(KERNEL_IN_UBI),--kernel $(IMAGE_KERNEL)) \
+		$(if $(ROOTFS_VOLNAME),--rootfs-name $(ROOTFS_VOLNAME)) \
+		$(if $(DATA_VOLNAME),--rootfs-data-name $(DATA_VOLNAME)) \
+		$(foreach part,$(UBINIZE_PARTS),--part $(part)) \
+		$(IMAGE_ROOTFS).ext \
+		$@.tmp \
+		-p $(BLOCKSIZE:%k=%KiB) -m $(PAGESIZE) \
+		$(if $(SUBPAGESIZE),-s $(SUBPAGESIZE)) \
+		$(if $(VID_HDR_OFFSET),-O $(VID_HDR_OFFSET)) \
+		$(UBINIZE_OPTS)
+	cat $@.tmp >> $@
+	rm $@.tmp
+endef
+
 define Image/Prepare
 	$(CP) $(LINUX_DIR)/vmlinux $(KDIR)/vmlinux-unstripped.elf
 endef
@@ -305,7 +330,6 @@ TARGET_DEVICES += AP-DK04.1-C1
 
 define Device/WXR-2533DHP
 	$(call Device/LegacyImage)
-	$(call Device/UbiFit)
 	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
 	BLOCKSIZE := 128k
 	BOARD_NAME := wxr-2533dhp
@@ -315,9 +339,13 @@ define Device/WXR-2533DHP
 	KERNEL_IN_UBI := 1
 	KERNEL_SIZE := 4096k
 	ROOTFS_SIZE := 16384k
-	IMAGES += factory.bin
+	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
+	IMAGE/cksum.ubi := buffalocksum | buffalo-append-ubi
+	IMAGE/nand-factory.ubi := append-ubi
+	IMAGE/nand-sysupgrade.tar := sysupgrade-tar | append-metadata
 	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0
 endef
+DEVICE_VARS += ROOTFS_VOLNAME DATA_VOLNAME
 TARGET_DEVICES += WXR-2533DHP
 $(eval $(call BuildImage))

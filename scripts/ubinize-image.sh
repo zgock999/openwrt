@@ -7,6 +7,8 @@ kernel=""
 rootfs=""
 outfile=""
 err=""
+rootfs_name="rootfs"
+rootfs_data_name="rootfs_data"
 
 get_magic_word() {
 	dd if=$1 bs=2 count=1 2>/dev/null | hexdump -v -n 2 -e '1/1 "%02x"'
@@ -69,9 +71,9 @@ ubilayout() {
 		ubivol $vol_id kernel "$3"
 		vol_id=$(( $vol_id + 1 ))
 	fi
-	ubivol $vol_id rootfs "$2" $root_is_ubifs
+	ubivol $vol_id $rootfs_name "$2" $root_is_ubifs
 	vol_id=$(( $vol_id + 1 ))
-	[ "$root_is_ubifs" ] || ubivol $vol_id rootfs_data "" 1
+	[ "$root_is_ubifs" ] || ubivol $vol_id $rootfs_data_name "" 1
 }
 
 while [ "$1" ]; do
@@ -89,6 +91,18 @@ while [ "$1" ]; do
 		;;
 	"--part")
 		parts="$parts $2"
+		shift
+		shift
+		continue
+		;;
+	"--rootfs-name")
+		rootfs_name="$2"
+		shift
+		shift
+		continue
+		;;
+	"--rootfs-data-name")
+		rootfs_data_name="$2"
 		shift
 		shift
 		continue
