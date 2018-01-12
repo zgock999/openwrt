@@ -15,19 +15,19 @@ endef
 DEVICE_VARS += ROOTFS_SIZE DEV_NAME
 
 define Build/buffalofakeroot
-	rm -rf $(BOARD_NAME).fakefs $(BOARD_NAME).fakesquashfs
-	mkdir $(BOARD_NAME).fakefs
+	rm -rf $(KDIR)/$(BOARD_NAME).fakefs $(KDIR)/$(BOARD_NAME).fakesquashfs
+	mkdir $(KDIR)/$(BOARD_NAME).fakefs
 	$(STAGING_DIR_HOST)/bin/mksquashfs4 \
-		$(BOARD_NAME).fakefs $(BOARD_NAME).fakesquashfs \
+		$(KDIR)/$(BOARD_NAME).fakefs $(KDIR)/$(BOARD_NAME).fakesquashfs \
 		-noappend -root-owned -nopad -b 65536 \
 		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
 endef
 
 define Build/buffalocksum
-	$(eval bufcksum=$(shell od -A n -t u1 $(BOARD_NAME).fakesquashfs | \
+	$(eval bufcksum=$(shell od -A n -t u1 $(KDIR)/$(BOARD_NAME).fakesquashfs | \
 		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}'))
 	echo -ne "\x$(bufcksum)" \
-		>> $(BOARD_NAME).fakesquashfs
+		>> $(KDIR)/$(BOARD_NAME).fakesquashfs
 endef
 
 define Build/buffalo-append-ubi
@@ -347,7 +347,7 @@ define Device/WXR-2533DHP
 	KERNEL_IN_UBI := 1
 	KERNEL_SIZE := 4096k
 	ROOTFS_SIZE := 16384k
-	UBINIZE_PARTS = ubi_rootfs=$$(BOARD_NAME).fakeroot
+	UBINIZE_PARTS = ubi_rootfs=$(KDIR)/$$(BOARD_NAME).fakesquashfs
 	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
 	IMAGE/cksum.ubi := buffalofakeroot | buffalocksum | append-ubi
 	IMAGE/nand-factory.ubi := append-ubi
