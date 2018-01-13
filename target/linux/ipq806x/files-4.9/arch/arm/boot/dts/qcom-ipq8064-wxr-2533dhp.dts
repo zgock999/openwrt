@@ -285,13 +285,13 @@
 					#address-cells = <1>;
 					#size-cells = <1>;
 
-					firmware@0 {
-						label = "firmware";
+					rootfs_0@0 {
+						label = "rootfs_0";
 						reg = <0x0000000 0x4000000>;
 					};
 
-					rootfs_1@4000000 {
-						label = "rootfs_1";
+					firmware@4000000 {
+						label = "firmware";
 						reg = <0x4000000 0x4000000>;
 					};
 
