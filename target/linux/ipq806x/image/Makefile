@@ -346,10 +346,10 @@ define Device/WXR-2533DHP
 	ROOTFS_SIZE := 16384k
 	FAKEFS_VOLNAME := ubi_rootfs
 	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
-	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
-	IMAGE/cksum.ubi := buffalofakeroot | \
+	IMAGES := knl-fakeroot.ubi rootfs.ubi nand-sysupgrade.tar factory.bin
+	IMAGE/knl-fakeroot.ubi := buffalofakeroot | \
 		buffalocksum $$(FAKESQUASHFS) | buffalo-append-ubi
-	IMAGE/nand-factory.ubi := append-ubi
+	IMAGE/rootfs.ubi := append-ubi
 	IMAGE/nand-sysupgrade.tar := sysupgrade-tar | append-metadata
 	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0
