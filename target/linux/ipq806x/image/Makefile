@@ -25,10 +25,9 @@ endef
 
 define Build/buffalocksum
 	$(eval chkimage=$(1))
-	$(eval bufcksum=$(shell od -A n -t u1 $(chkimage) | \
-		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}'))
-	echo -ne "\x$(bufcksum)" \
-		>> $(1)
+	echo -ne "\x$(shell od -A n -t u1 $(chkimage) | \
+		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}')" \
+			>> $(1)
 endef
 
 define Build/buffalo-append-ubi
@@ -348,7 +347,6 @@ define Device/WXR-2533DHP
 	ROOTFS_SIZE := 16384k
 	FAKEFS_VOLNAME := ubi_rootfs
 	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
-	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
 	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
 	IMAGE/cksum.ubi := buffalofakeroot | \
 		buffalocksum $$(FAKESQUASHFS) | buffalo-append-ubi 1
