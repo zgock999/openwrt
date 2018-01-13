@@ -285,17 +285,17 @@
 					#address-cells = <1>;
 					#size-cells = <1>;
 
-					rootfs_0@0 {
+					firmware1@0 {
 						label = "firmware1";
 						reg = <0x0000000 0x4000000>;
 					};
 
-					firmware@4000000 {
+					firmware2@4000000 {
 						label = "firmware2";
 						reg = <0x4000000 0x4000000>;
 					};
 
-					rootfs@8000000 {
+					ubi@8000000 {
 						label = "ubi";
 						reg = <0x8000000 0x8000000>;
 					};
