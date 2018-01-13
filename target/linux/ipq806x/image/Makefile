@@ -25,13 +25,12 @@ endef
 
 define Build/buffalocksum
 	$(eval chkimage=$(1))
-	echo -ne "\x$(shell od -A n -t u1 $(chkimage) | \
+	echo -ne "\x$$(od -A n -t u1 $(chkimage) | \
 		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}')" \
 			>> $(1)
 endef
 
 define Build/buffalo-append-ubi
-	$(eval kernelubi=$(1))
 	sh $(TOPDIR)/scripts/ubinize-image.sh \
 		$(if $(UBOOTENV_IN_UBI),--uboot-env) \
 		--kernel $(IMAGE_KERNEL) \
@@ -349,7 +348,7 @@ define Device/WXR-2533DHP
 	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
 	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
 	IMAGE/cksum.ubi := buffalofakeroot | \
-		buffalocksum $$(FAKESQUASHFS) | buffalo-append-ubi 1
+		buffalocksum $$(FAKESQUASHFS) | buffalo-append-ubi
 	IMAGE/nand-factory.ubi := append-ubi
 	IMAGE/nand-sysupgrade.tar := sysupgrade-tar | append-metadata
 	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
