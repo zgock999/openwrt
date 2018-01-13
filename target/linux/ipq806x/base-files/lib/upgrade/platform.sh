@@ -16,8 +16,11 @@ platform_do_upgrade() {
 	nbg6817 |\
 	r7500 |\
 	r7500v2 |\
-	r7800 |\
+	r7800)
+		nand_do_upgrade "$ARGV"
+		;;
 	wxr-2533dhp)
+		CI_KERNPART="firmware2"
 		nand_do_upgrade "$ARGV"
 		;;
 	c2600)
