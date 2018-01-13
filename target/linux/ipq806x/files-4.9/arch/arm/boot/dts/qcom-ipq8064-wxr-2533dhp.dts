@@ -33,7 +33,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=0 root=/dev/ubiblock0_2 rootfstype=squashfs";
+		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=0 ubi.mtd=2 root=/dev/ubiblock1_0 rootfstype=squashfs";
 		linux,stdout-path = "serial0:115200n8";
 	};
 
@@ -285,14 +285,19 @@
 					#address-cells = <1>;
 					#size-cells = <1>;
 
-					rootfs@0 {
-						label = "rootfs";
+					firmware@0 {
+						label = "firmware";
 						reg = <0x0000000 0x4000000>;
 					};
 
 					rootfs_1@4000000 {
 						label = "rootfs_1";
 						reg = <0x4000000 0x4000000>;
+					};
+
+					rootfs@8000000 {
+						label = "rootfs";
+						reg = <0x8000000 0x8000000>;
 					};
 				};
 			};

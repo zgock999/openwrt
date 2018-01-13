@@ -15,33 +15,29 @@ endef
 DEVICE_VARS += ROOTFS_SIZE DEV_NAME
 
 define Build/buffalofakeroot
-	rm -rf $(KDIR)/$(BOARD_NAME).fakefs $(KDIR)/$(BOARD_NAME).fakesquashfs
+	rm -rf $(KDIR)/$(BOARD_NAME).fakefs $(FAKESQUASHFS)
 	mkdir $(KDIR)/$(BOARD_NAME).fakefs
 	$(STAGING_DIR_HOST)/bin/mksquashfs4 \
-		$(KDIR)/$(BOARD_NAME).fakefs $(KDIR)/$(BOARD_NAME).fakesquashfs \
+		$(KDIR)/$(BOARD_NAME).fakefs $(FAKESQUASHFS) \
 		-noappend -root-owned -nopad -b 65536 \
 		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
-	$(eval bufcksum=$(shell od -A n -t u1 $(KDIR)/$(BOARD_NAME).fakesquashfs | \
-		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}'))
-	echo -ne "\x$(bufcksum)" \
-		>> $(KDIR)/$(BOARD_NAME).fakesquashfs
 endef
 
 define Build/buffalocksum
-	$(eval bufcksum=$(shell od -A n -t u1 $(KDIR)/$(BOARD_NAME).fakesquashfs | \
+	$(eval chkimage=$(1))
+	$(eval bufcksum=$(shell od -A n -t u1 $(chkimage) | \
 		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}'))
 	echo -ne "\x$(bufcksum)" \
-		>> $(KDIR)/$(BOARD_NAME).fakesquashfs
+		>> $(1)
 endef
 
 define Build/buffalo-append-ubi
+	$(eval kernelubi=$(1))
 	sh $(TOPDIR)/scripts/ubinize-image.sh \
 		$(if $(UBOOTENV_IN_UBI),--uboot-env) \
-		$(if $(KERNEL_IN_UBI),--kernel $(IMAGE_KERNEL)) \
-		$(if $(ROOTFS_VOLNAME),--rootfs-name $(ROOTFS_VOLNAME)) \
-		$(if $(DATA_VOLNAME),--rootfs-data-name $(DATA_VOLNAME)) \
-		$(foreach part,$(UBINIZE_PARTS),--part $(part)) \
-		$(IMAGE_ROOTFS) \
+		--kernel $(IMAGE_KERNEL) \
+		$(if $(FAKEFS_VOLNAME),--rootfs-name $(FAKEFS_VOLNAME)) \
+		$(FAKESQUASHFS) \
 		$@.tmp \
 		-p $(BLOCKSIZE:%k=%KiB) -m $(PAGESIZE) \
 		$(if $(SUBPAGESIZE),-s $(SUBPAGESIZE)) \
@@ -348,17 +344,19 @@ define Device/WXR-2533DHP
 	DEV_NAME := WXR-2533DHP
 	DEVICE_TITLE := Buffalo WXR-2533DHP
 	PAGESIZE := 2048
-	KERNEL_IN_UBI := 1
 	KERNEL_SIZE := 4096k
 	ROOTFS_SIZE := 16384k
-	UBINIZE_PARTS = ubi_rootfs=$(KDIR)/$$(BOARD_NAME).fakesquashfs
+	FAKEFS_VOLNAME := ubi_rootfs
+	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
+	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
 	IMAGES := cksum.ubi nand-factory.ubi nand-sysupgrade.tar factory.bin
-	IMAGE/cksum.ubi := buffalofakeroot | buffalocksum | append-ubi
+	IMAGE/cksum.ubi := buffalofakeroot | \
+		buffalocksum $$(FAKESQUASHFS) | buffalo-append-ubi 1
 	IMAGE/nand-factory.ubi := append-ubi
 	IMAGE/nand-sysupgrade.tar := sysupgrade-tar | append-metadata
 	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0
 endef
-DEVICE_VARS += ROOTFS_VOLNAME DATA_VOLNAME
+DEVICE_VARS += FAKEFS_VOLNAME FAKESQUASHFS
 TARGET_DEVICES += WXR-2533DHP
 $(eval $(call BuildImage))
