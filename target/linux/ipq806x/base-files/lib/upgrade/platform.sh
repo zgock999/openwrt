@@ -20,8 +20,7 @@ platform_do_upgrade() {
 		nand_do_upgrade "$ARGV"
 		;;
 	wxr-2533dhp)
-		CI_KERNPART="firmware2"
-		nand_do_upgrade "$ARGV"
+		platform_do_upgrade_buffalo "$ARGV"
 		;;
 	c2600)
 		PART_NAME="os-image:rootfs"
