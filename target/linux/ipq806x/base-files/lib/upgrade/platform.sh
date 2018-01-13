@@ -16,7 +16,8 @@ platform_do_upgrade() {
 	nbg6817 |\
 	r7500 |\
 	r7500v2 |\
-	r7800)
+	r7800 |\
+	wxr-2533dhp)
 		nand_do_upgrade "$ARGV"
 		;;
 	c2600)
