@@ -170,7 +170,10 @@ platform_do_upgrade_buffalo() {
 	[ ! "$(find_mtd_index "$CI_BUF_UBIPART")" ] && CI_BUF_UBIPART="rootfs"
 
 	case "$file_type" in
-		"ubi" |\
+		"ubi")
+			CI_UBIPART="$CI_BUF_UBIPART"
+			nand_upgrade_ubinized $1
+			;;
 		"ubifs")
 			echo "not compatible sysupgrade file."
 			return 1
