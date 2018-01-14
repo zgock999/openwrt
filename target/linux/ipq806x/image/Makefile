@@ -30,21 +30,6 @@ define Build/buffalocksum
 			>> $(1)
 endef
 
-define Build/buffalo-append-ubi
-	sh $(TOPDIR)/scripts/ubinize-image.sh \
-		$(if $(UBOOTENV_IN_UBI),--uboot-env) \
-		--kernel $(IMAGE_KERNEL) \
-		$(if $(FAKEFS_VOLNAME),--rootfs-name $(FAKEFS_VOLNAME)) \
-		$(FAKESQUASHFS) \
-		$@.tmp \
-		-p $(BLOCKSIZE:%k=%KiB) -m $(PAGESIZE) \
-		$(if $(SUBPAGESIZE),-s $(SUBPAGESIZE)) \
-		$(if $(VID_HDR_OFFSET),-O $(VID_HDR_OFFSET)) \
-		$(UBINIZE_OPTS)
-	cat $@.tmp >> $@
-	rm $@.tmp
-endef
-
 define Image/Prepare
 	$(CP) $(LINUX_DIR)/vmlinux $(KDIR)/vmlinux-unstripped.elf
 endef
@@ -361,7 +346,7 @@ define Device/zyxel_nbg6817
 endef
 TARGET_DEVICES += zyxel_nbg6817
 
-define Device/WXR-2533DHP
+define Device/buffalo_wxr-2533dhp
 	$(call Device/LegacyImage)
 	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
 	BLOCKSIZE := 128k
@@ -370,17 +355,16 @@ define Device/WXR-2533DHP
 	DEVICE_TITLE := Buffalo WXR-2533DHP
 	PAGESIZE := 2048
 	KERNEL_SIZE := 4096k
-	ROOTFS_SIZE := 16384k
-	FAKEFS_VOLNAME := ubi_rootfs
+	KERNEL_IN_UBI := 1
 	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
-	IMAGES := knl-fakeroot.ubi rootfs.ubi nand-sysupgrade.tar factory.bin
-	IMAGE/knl-fakeroot.ubi := buffalofakeroot | \
-		buffalocksum $$(FAKESQUASHFS) | buffalo-append-ubi
-	IMAGE/rootfs.ubi := append-ubi
-	IMAGE/nand-sysupgrade.tar := sysupgrade-tar | append-metadata
+	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
+	IMAGES := firmware.ubi sysupgrade.tar factory.bin
+	IMAGE/firmware.ubi := buffalofakeroot | \
+		buffalocksum $$(FAKESQUASHFS) | append-ubi
+	IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0
 endef
-DEVICE_VARS += FAKEFS_VOLNAME FAKESQUASHFS
-TARGET_DEVICES += WXR-2533DHP
+DEVICE_VARS += FAKESQUASHFS
+TARGET_DEVICES += buffalo_wxr-2533dhp
 $(eval $(call BuildImage))

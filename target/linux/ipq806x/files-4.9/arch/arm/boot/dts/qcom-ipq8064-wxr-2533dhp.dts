@@ -33,7 +33,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=2 rootfstype=squashfs";
+		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=1 rootfstype=squashfs";
 		linux,stdout-path = "serial0:115200n8";
 	};
 
@@ -293,11 +293,6 @@
 					firmware2@4000000 {
 						label = "firmware2";
 						reg = <0x4000000 0x4000000>;
-					};
-
-					ubi@8000000 {
-						label = "ubi";
-						reg = <0x8000000 0x8000000>;
 					};
 				};
 			};
