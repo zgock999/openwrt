@@ -66,7 +66,7 @@ buffalo_upgrade_prepare_kernel() {
 		echo "cannot create fakeroot volume"
 		return 1;
 	else
-		echo "write backup fakeroot image to volume $fkroot_ubivol"
+		echo "write fakeroot image to volume $fkroot_ubivol"
 		ubiupdatevol /dev/$fkroot_ubivol -s $fkroot_length /tmp/fkroot.bin
 	fi
 
