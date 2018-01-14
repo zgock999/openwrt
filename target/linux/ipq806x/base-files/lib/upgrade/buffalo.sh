@@ -11,25 +11,16 @@
 # match, do write back image to 'firmware1' from 'firmware2'.
 CI_BUF_KERNPART="firmware2"
 KERN_VOLNAME="kernel"
+FKROOT_VOLNAME="ubi_rootfs"
 
 # 'ubi' partition on NAND contains UBI
 CI_BUF_ROOTPART="${CI_BUF_ROOTPART:-ubi}"
 
-buffalo_upgrade_prepare_ubi() {
-	local rootfs_length="$1"
-	local rootfs_type="$2"
-
+buffalo_upgrade_prepare_kernel() {
 	# search kernel ubi partition
 	local kern_mtdnum="$( find_mtd_index "$CI_BUF_KERNPART" )"
 	if [ ! "$kern_mtdnum" ]; then
 		echo "cannot find kernel mtd partition $CI_BUF_KERNPART"
-		return 1
-	fi
-
-	# search rootfs ubi partition
-	local rootfs_mtdnum="$( find_mtd_index "$CI_BUF_ROOTPART" )"
-	if [ ! "$rootfs_mtdnum" ]; then
-		echo "cannot find ubi mtd partition $CI_BUF_ROOTPART"
 		return 1
 	fi
 
@@ -41,18 +32,68 @@ buffalo_upgrade_prepare_ubi() {
 		kern_ubidev="$( nand_find_ubi "$CI_BUF_KERNPART" )"
 	fi
 
+	# kernel ubi device still not found
+	if [ ! "$kern_ubidev" ]; then
+		echo "cannot find kernel ubi device"
+		return 1
+	fi
+
+	# get kernel/fkroot/fkdata ubi volume
+	local kern_ubivol="$( nand_find_volume $kern_ubidev $KERN_VOLNAME )"
+	local fkroot_ubivol="$( nand_find_volume $kern_ubidev $FKROOT_VOLNAME )"
+	local fkdata_ubivol="$( nand_find_volume $kern_ubidev rootfs_data )"
+
+	# backup fake rootfs data
+	if [ -n "$fkroot_ubivol" ]; then
+		echo "backup from fakeroot volume"
+		cat /dev/$fkroot_ubivol > /tmp/fkroot.bin
+		local fkroot_length=`(wc -c /tmp/fkroot.bin | awk '{print $1}')`
+	fi
+
+	# kill volumes
+	[ "$kern_ubivol" ] && ubirmvol /dev/$kern_ubidev -N $KERN_VOLNAME || true
+	[ "$fkroot_ubivol" ] && ubirmvol /dev/$kern_ubidev -N $FKROOT_VOLNAME || true
+	[ "$fkdata_ubivol" ] && ubirmvol /dev/$kern_ubidev -N rootfs_data || true
+
+	# re-create kernel volume
+	if ! ubimkvol /dev/$kern_ubidev -N $KERN_VOLNAME -s $kernel_length; then
+		echo "cannot create kernel volume"
+		return 1;
+	fi
+
+	# re-create fake rootfs volume and write backup image
+	if ! ubimkvol /dev/$kern_ubidev -N $FKROOT_VOLNAME -s $fkroot_length; then
+		echo "cannot create fakeroot volume"
+		return 1;
+	else
+		echo "write backup fakeroot image to volume $fkroot_ubivol"
+		ubiupdatevol /dev/$fkroot_ubivol -s $fkroot_length /tmp/fkroot.bin
+	fi
+
+	# re-create fake data volume
+	if ! ubimkvol /dev/$kern_ubidev -N rootfs_data -m; then
+		echo "cannot create fake data volume"
+		return 1;
+	fi
+}
+
+buffalo_upgrade_prepare_root() {
+	local rootfs_length="$1"
+	local rootfs_type="$2"
+
+	# search rootfs ubi partition
+	local rootfs_mtdnum="$( find_mtd_index "$CI_BUF_ROOTPART" )"
+	if [ ! "$rootfs_mtdnum" ]; then
+		echo "cannot find ubi mtd partition $CI_BUF_ROOTPART"
+		return 1
+	fi
+
 	# search rootfs ubi device (e.g. ubi0) from $CI_BUF_ROOTPART
 	local rootfs_ubidev="$( nand_find_ubi "$CI_BUF_ROOTPART" )"
 	if [ ! "$rootfs_ubidev" ]; then
 		ubiattach -m "$rootfs_mtdnum"
 		sync
 		rootfs_ubidev="$( nand_find_ubi "$CI_BUF_ROOTPART" )"
-	fi
-
-	# kernel ubi device still not found
-	if [ ! "$kern_ubidev" ]; then
-		echo "cannot find kernel ubi device"
-		return 1
 	fi
 
 	# rootfs ubi device still not found
@@ -63,7 +104,7 @@ buffalo_upgrade_prepare_ubi() {
 		rootfs_ubidev="$( nand_find_ubi "$CI_BUF_ROOTPART" )"
 	fi
 
-	local kern_ubivol="$( nand_find_volume $kern_ubidev $KERN_VOLNAME )"
+	# get root/data ubi volume
 	local root_ubivol="$( nand_find_volume $rootfs_ubidev rootfs )"
 	local data_ubivol="$( nand_find_volume $rootfs_ubidev rootfs_data )"
 
@@ -78,15 +119,8 @@ buffalo_upgrade_prepare_ubi() {
 	fi
 
 	# kill volumes
-	[ "$kern_ubivol" ] && ubirmvol /dev/$kern_ubidev -N $KERN_VOLNAME || true
 	[ "$root_ubivol" ] && ubirmvol /dev/$rootfs_ubidev -N rootfs || true
 	[ "$data_ubivol" ] && ubirmvol /dev/$rootfs_ubidev -N rootfs_data || true
-
-	# re-create kernel volume
-	if ! ubimkvol /dev/$kern_ubidev -N $KERN_VOLNAME -s $kernel_length; then
-		echo "cannot create kernel volume"
-		return 1;
-	fi
 
 	# re-create rootfs volume
 	local root_size_param
@@ -124,7 +158,8 @@ buffalo_upgrade_tar() {
 
 	local rootfs_type="$(identify_tar "$tar_file" ${board_dir}/root)"
 
-	buffalo_upgrade_prepare_ubi "$rootfs_length" "$rootfs_type"
+	buffalo_upgrade_prepare_kernel
+	buffalo_upgrade_prepare_root "$rootfs_length" "$rootfs_type"
 
 	local kern_ubidev="$( nand_find_ubi "$CI_BUF_KERNPART" )"
 	local kern_ubivol="$(nand_find_volume $kern_ubidev $KERN_VOLNAME)"
