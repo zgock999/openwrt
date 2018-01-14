@@ -69,12 +69,6 @@ buffalo_upgrade_prepare_ubi() {
 	[ "$root_ubivol" ] && ubirmvol /dev/$ubidev -N rootfs || true
 	[ "$data_ubivol" ] && ubirmvol /dev/$ubidev -N rootfs_data || true
 
-	# re-create kernel volume
-	if ! ubimkvol /dev/$ubidev -N $KERN_VOLNAME -s $kernel_length; then
-		echo "cannot create kernel volume"
-		return 1;
-	fi
-
 	# re-create fakerootfs volume and write backup image
 	if ! ubimkvol /dev/$ubidev -N $FKROOT_VOLNAME -s $fkroot_length; then
 		echo "cannot create fakeroot volume"
@@ -82,6 +76,12 @@ buffalo_upgrade_prepare_ubi() {
 	else
 		echo "write fakeroot image to $fkroot_ubivol"
 		ubiupdatevol /dev/$fkroot_ubivol -s $fkroot_length /tmp/fkroot.bin
+	fi
+
+	# re-create kernel volume
+	if ! ubimkvol /dev/$ubidev -N $KERN_VOLNAME -s $kernel_length; then
+		echo "cannot create kernel volume"
+		return 1;
 	fi
 
 	# re-create rootfs volume
