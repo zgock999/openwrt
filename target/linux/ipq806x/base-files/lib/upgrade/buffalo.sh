@@ -145,6 +145,34 @@ buffalo_upgrade_prepare_root() {
 	return 0
 }
 
+buffalo_restore_config() {
+	sync
+	local ubidev=$( nand_find_ubi $CI_BUF_ROOTPART )
+	local ubivol="$( nand_find_volume $ubidev rootfs_data )"
+	[ ! "$ubivol" ] &&
+		ubivol="$( nand_find_volume $ubidev rootfs )"
+	mkdir /tmp/new_root
+	if ! mount -t ubifs /dev/$ubivol /tmp/new_root; then
+		echo "mounting ubifs $ubivol failed"
+		rmdir /tmp/new_root
+		return 1
+	fi
+	mv "$1" "/tmp/new_root/sysupgrade.tgz"
+	umount /tmp/new_root
+	sync
+	rmdir /tmp/new_root
+}
+
+buffalo_do_upgrade_success() {
+	local conf_tar="/tmp/sysupgrade.tgz"
+
+	sync
+	[ -f "$conf_tar" ] && buffalo_restore_config "$conf_tar"
+	echo "sysupgrade successful"
+	umount -a
+	reboot -f
+}
+
 # Extract tar image and write to UBI volume
 buffalo_upgrade_tar() {
 	local tar_file="$1"
@@ -171,7 +199,7 @@ buffalo_upgrade_tar() {
 	tar xf $tar_file ${board_dir}/root -O | \
 		ubiupdatevol /dev/$root_ubivol -s $rootfs_length -
 
-	nand_do_upgrade_success
+	buffalo_do_upgrade_success
 }
 
 # Recognize type of passed file and start the upgrade process
