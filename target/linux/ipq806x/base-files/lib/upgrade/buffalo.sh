@@ -9,44 +9,44 @@
 # image in 'firmware1'. However, U-Boot checks 'firmware1'
 # and 'firmware2' images when booting, and if they are not
 # match, do write back image to 'firmware1' from 'firmware2'.
-CI_KERNPART="${CI_KERNPART:-firmware2}"
-KERN_VOLNAME="${KERN_VOLNAME:-kernel}"
+CI_BUF_KERNPART="firmware2"
+KERN_VOLNAME="kernel"
 
 # 'ubi' partition on NAND contains UBI
-CI_UBIPART="${CI_UBIPART:-ubi}"
+CI_BUF_ROOTPART="${CI_BUF_ROOTPART:-ubi}"
 
 buffalo_upgrade_prepare_ubi() {
 	local rootfs_length="$1"
 	local rootfs_type="$2"
 
 	# search kernel ubi partition
-	local kern_mtdnum="$( find_mtd_index "$CI_KERNPART" )"
-	if [ ! "$kern_mtdnum"]; then
-		echo "cannot find kernel mtd partition $CI_KERNPART"
+	local kern_mtdnum="$( find_mtd_index "$CI_BUF_KERNPART" )"
+	if [ ! "$kern_mtdnum" ]; then
+		echo "cannot find kernel mtd partition $CI_BUF_KERNPART"
 		return 1
 	fi
 
 	# search rootfs ubi partition
-	local rootfs_mtdnum="$( find_mtd_index "$CI_UBIPART" )"
+	local rootfs_mtdnum="$( find_mtd_index "$CI_BUF_ROOTPART" )"
 	if [ ! "$rootfs_mtdnum" ]; then
-		echo "cannot find ubi mtd partition $CI_UBIPART"
+		echo "cannot find ubi mtd partition $CI_BUF_ROOTPART"
 		return 1
 	fi
 
-	# search kernel ubi device (e.g. ubi0) from $CI_KERNPART
-	local kern_ubidev="$( nand_find_ubi "$CI_KERNPART" )"
+	# search kernel ubi device (e.g. ubi0) from $CI_BUF_KERNPART
+	local kern_ubidev="$( nand_find_ubi "$CI_BUF_KERNPART" )"
 	if [ ! "$kern_ubidev" ]; then
 		ubiattach -m "$kern_mtdnum"
 		sync
-		kern_ubidev="$( nand_find_ubi "$CI_KERNPART" )"
+		kern_ubidev="$( nand_find_ubi "$CI_BUF_KERNPART" )"
 	fi
 
-	# search rootfs ubi device (e.g. ubi0) from $CI_UBIPART
-	local rootfs_ubidev="$( nand_find_ubi "$CI_UBIPART" )"
+	# search rootfs ubi device (e.g. ubi0) from $CI_BUF_ROOTPART
+	local rootfs_ubidev="$( nand_find_ubi "$CI_BUF_ROOTPART" )"
 	if [ ! "$rootfs_ubidev" ]; then
 		ubiattach -m "$rootfs_mtdnum"
 		sync
-		rootfs_ubidev="$( nand_find_ubi "$CI_UBIPART" )"
+		rootfs_ubidev="$( nand_find_ubi "$CI_BUF_ROOTPART" )"
 	fi
 
 	# kernel ubi device still not found
@@ -60,10 +60,10 @@ buffalo_upgrade_prepare_ubi() {
 		ubiformat /dev/mtd$rootfs_mtdnum -y
 		ubiattach -m "$rootfs_mtdnum"
 		sync
-		rootfs_ubidev="$( nand_find_ubi "$CI_UBIPART" )"
+		rootfs_ubidev="$( nand_find_ubi "$CI_BUF_ROOTPART" )"
 	fi
 
-	local kern_ubivol="$( nand_find_volume $kern_ubidev $CI_KERNPART )"
+	local kern_ubivol="$( nand_find_volume $kern_ubidev $KERN_VOLNAME )"
 	local root_ubivol="$( nand_find_volume $rootfs_ubidev rootfs )"
 	local data_ubivol="$( nand_find_volume $rootfs_ubidev rootfs_data )"
 
@@ -83,7 +83,7 @@ buffalo_upgrade_prepare_ubi() {
 	[ "$data_ubivol" ] && ubirmvol /dev/$rootfs_ubidev -N rootfs_data || true
 
 	# re-create kernel volume
-	if ! ubimkvol /dev/$kern_ubidev -N $CI_KERNPART -s $kernel_length; then
+	if ! ubimkvol /dev/$kern_ubidev -N $KERN_VOLNAME -s $kernel_length; then
 		echo "cannot create kernel volume"
 		return 1;
 	fi
@@ -114,7 +114,7 @@ buffalo_upgrade_prepare_ubi() {
 # Extract tar image and write to UBI volume
 buffalo_upgrade_tar() {
 	local tar_file="$1"
-	local kernel_mtd="$(find_mtd_index $CI_KERNPART)"
+	local kernel_mtd="$(find_mtd_index $CI_BUF_KERNPART)"
 
 	local board_dir=$(tar tf $tar_file | grep -m 1 '^sysupgrade-.*/$')
 	board_dir=${board_dir%/}
@@ -126,12 +126,12 @@ buffalo_upgrade_tar() {
 
 	buffalo_upgrade_prepare_ubi "$rootfs_length" "$rootfs_type"
 
-	local kern_ubidev="$( nand_find_ubi "$CI_KERNPART" )"
+	local kern_ubidev="$( nand_find_ubi "$CI_BUF_KERNPART" )"
 	local kern_ubivol="$(nand_find_volume $kern_ubidev $KERN_VOLNAME)"
 	tar xf $tar_file ${board_dir}/kernel -O | \
 		ubiupdatevol /dev/$kern_ubivol -s $kernel_length -
 
-	local root_ubidev="$( nand_find_ubi "$CI_UBIPART" )"
+	local root_ubidev="$( nand_find_ubi "$CI_BUF_ROOTPART" )"
 	local root_ubivol="$(nand_find_volume $root_ubidev rootfs)"
 	tar xf $tar_file ${board_dir}/root -O | \
 		ubiupdatevol /dev/$root_ubivol -s $rootfs_length -
@@ -144,7 +144,7 @@ platform_do_upgrade_buffalo() {
 
 	local file_type=$(identify $1)
 
-	[ ! "$(find_mtd_index "$CI_UBIPART")" ] && CI_UBIPART="rootfs"
+	[ ! "$(find_mtd_index "$CI_BUF_ROOTPART")" ] && CI_BUF_ROOTPART="rootfs"
 
 	case "$file_type" in
 		"ubi" |\
