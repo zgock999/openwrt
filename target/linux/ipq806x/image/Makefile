@@ -363,7 +363,8 @@ define Device/buffalo_wxr-2533dhp
 		buffalocksum $$(FAKESQUASHFS) | append-ubi
 	IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
 	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
-	DEVICE_PACKAGES := ath10k-firmware-qca99x0
+	DEVICE_PACKAGES := ath10k-firmware-qca99x0 -kmod-ata-core -kmod-ata-ahci | \
+		-kmod-ata-ahci-platform
 endef
 DEVICE_VARS += FAKESQUASHFS
 TARGET_DEVICES += buffalo_wxr-2533dhp
