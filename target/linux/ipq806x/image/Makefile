@@ -3,6 +3,31 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
+define Build/mkbuffaloimg
+	$(STAGING_DIR_HOST)/bin/mkbuffaloimg -B $(DEV_NAME) \
+		-R $$(($(subst k, * 1024,$(ROOTFS_SIZE)))) \
+		-K $$(($(subst k, * 1024,$(KERNEL_SIZE)))) \
+		-i $@ -o $@.new
+	mv $@.new $@
+endef
+DEVICE_VARS += ROOTFS_SIZE DEV_NAME
+
+define Build/buffalofakeroot
+	rm -rf $(KDIR)/$(BOARD_NAME).fakefs $(FAKESQUASHFS)
+	mkdir $(KDIR)/$(BOARD_NAME).fakefs
+	$(STAGING_DIR_HOST)/bin/mksquashfs4 \
+		$(KDIR)/$(BOARD_NAME).fakefs $(FAKESQUASHFS) \
+		-noappend -root-owned -nopad -b 65536 \
+		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
+endef
+
+define Build/buffalocksum
+	$(eval chkimage=$(1))
+	echo -ne "\x$$(od -A n -t u1 $(chkimage) | \
+		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}')" \
+			>> $(1)
+endef
+
 define Device/Default
 	PROFILES := Default
 	KERNEL_DEPENDS = $$(wildcard $(DTS_DIR)/$$(DEVICE_DTS).dts)
@@ -289,4 +314,25 @@ define Device/zyxel_nbg6817
 endef
 TARGET_DEVICES += zyxel_nbg6817
 
+define Device/buffalo_wxr-2533dhp
+	$(call Device/LegacyImage)
+	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
+	BLOCKSIZE := 128k
+	BOARD_NAME := wxr-2533dhp
+	DEV_NAME := WXR-2533DHP
+	DEVICE_TITLE := Buffalo WXR-2533DHP
+	PAGESIZE := 2048
+	KERNEL_SIZE := 4096k
+	KERNEL_IN_UBI := 1
+	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
+	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
+	IMAGES := firmware.ubi sysupgrade.bin factory.bin
+	IMAGE/firmware.ubi := buffalofakeroot | \
+		buffalocksum $$(FAKESQUASHFS) | append-ubi
+	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
+	DEVICE_PACKAGES := ath10k-firmware-qca99x0 -kmod-ata-core -kmod-ata-ahci | \
+		-kmod-ata-ahci-platform
+endef
+DEVICE_VARS += FAKESQUASHFS
+TARGET_DEVICES += buffalo_wxr-2533dhp
 $(eval $(call BuildImage))
