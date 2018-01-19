@@ -180,7 +180,8 @@ buffalo_upgrade_tar() {
 	tar xf $tar_file ${board_dir}/root -O | \
 		ubiupdatevol /dev/$root_ubivol -s $rootfs_length -
 
-	buffalo_do_upgrade_success
+	CI_UBIPART="$CI_BUF_UBIPART"
+	nand_do_upgrade_success
 }
 
 # Recognize type of passed file and start the upgrade process
