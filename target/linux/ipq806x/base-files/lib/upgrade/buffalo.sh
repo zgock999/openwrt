@@ -9,7 +9,8 @@
 # image in 'firmware1'. However, U-Boot checks 'firmware1'
 # and 'firmware2' images when booting, and if they are not
 # match, do write back image to 'firmware1' from 'firmware2'.
-CI_BUF_UBIPART="${CI_BUF_UBIPART:-firmware2}"
+CI_BUF_UBIPART="${CI_BUF_UBIPART:-firmware1}"
+CI_BUF_UBIPART2="${CI_BUF_UBIPART2:-firmware2}"
 KERN_VOLNAME="${KERN_VOLNAME:-kernel}"
 FKROOT_VOLNAME="${FKROOT_VOLNAME:-ubi_rootfs}"
 
@@ -17,34 +18,50 @@ buffalo_upgrade_prepare_ubi() {
 	local rootfs_length="$1"
 	local rootfs_type="$2"
 
-	# search ubi partition
-	local mtdnum="$( find_mtd_index "$CI_BUF_UBIPART" )"
-	if [ ! "$mtdnum" ]; then
-		echo "cannot find ubi mtd partition $CI_BUF_UBIPART"
+	# search first ubi partition
+	local mtdnum1="$( find_mtd_index "$CI_BUF_UBIPART" )"
+	if [ ! "$mtdnum1" ]; then
+		echo "cannot find first ubi mtd partition $CI_BUF_UBIPART"
 		return 1
 	fi
 
-	# search ubi device (e.g. ubi0) from $CI_BUF_UBIPART
-	local ubidev="$( nand_find_ubi "$CI_BUF_UBIPART" )"
-	if [ ! "$ubidev" ]; then
-		ubiattach -m "$mtdnum"
+	# search second ubi partition
+	local mtdnum2="$( find_mtd_index "$CI_BUF_UBIPART2" )"
+	if [ ! "$mtdnum2" ]; then
+		echo "cannot find second ubi mtd partition $CI_BUF_UBIPART2"
+	fi
+
+	# search first ubi device (e.g. ubi0) from $CI_BUF_UBIPART
+	local ubidev1="$( nand_find_ubi "$CI_BUF_UBIPART" )"
+	if [ ! "$ubidev1" ]; then
+		ubiattach -m "$mtdnum1"
 		sync
-		ubidev="$( nand_find_ubi "$CI_BUF_UBIPART" )"
+		ubidev1="$( nand_find_ubi "$CI_BUF_UBIPART" )"
+	fi
+
+	# search second ubi device from $CI_BUF_UBIPART2
+	local ubidev2="$( nand_find_ubi "$CI_BUF_UBIPART2" )"
+	if [ ! "$ubidev2" ] && [ -n "$mtdnum2" ]; then
+		ubiattach -m "$mtdnum2"
+		sync
+		ubidev2="$( nand_find_ubi "$CI_BUF_UBIPART2" )"
 	fi
 
 	# ubi device still not found
-	if [ ! "$ubidev" ]; then
-		ubiformat /dev/mtd$mtdnum -y
-		ubiattach -m "$mtdnum"
+	if [ ! "$ubidev1" ]; then
+		ubiformat /dev/mtd$mtdnum1 -y
+		ubiattach -m "$mtdnum1"
 		sync
 		ubidev="$( nand_find_ubi "$CI_BUF_UBIPART" )"
 	fi
 
 	# get root/data ubi volume
-	local kern_ubivol="$( nand_find_volume $ubidev $KERN_VOLNAME )"
-	local fkroot_ubivol="$( nand_find_volume $ubidev $FKROOT_VOLNAME )"
-	local root_ubivol="$( nand_find_volume $ubidev rootfs )"
-	local data_ubivol="$( nand_find_volume $ubidev rootfs_data )"
+	local kern_ubivol="$( nand_find_volume $ubidev1 $KERN_VOLNAME )"
+	local fkroot_ubivol="$( nand_find_volume $ubidev1 $FKROOT_VOLNAME )"
+	local root_ubivol="$( nand_find_volume $ubidev1 rootfs )"
+	local data_ubivol="$( nand_find_volume $ubidev1 rootfs_data )"
+	# (kernel vol in second partition)
+	local kern2_ubivol="$( nand_find_volume $ubidev2 $KERN_VOLNAME )"
 
 	# remove ubiblock device of rootfs
 	local root_ubiblk="ubiblock${root_ubivol:3}"
@@ -64,13 +81,13 @@ buffalo_upgrade_prepare_ubi() {
 	fi
 
 	# kill volumes
-	[ "$kern_ubivol" ] && ubirmvol /dev/$ubidev -N $KERN_VOLNAME || true
-	[ "$fkroot_ubivol" ] && ubirmvol /dev/$ubidev -N $FKROOT_VOLNAME || true
-	[ "$root_ubivol" ] && ubirmvol /dev/$ubidev -N rootfs || true
-	[ "$data_ubivol" ] && ubirmvol /dev/$ubidev -N rootfs_data || true
+	[ "$kern_ubivol" ] && ubirmvol /dev/$ubidev1 -N $KERN_VOLNAME || true
+	[ "$fkroot_ubivol" ] && ubirmvol /dev/$ubidev1 -N $FKROOT_VOLNAME || true
+	[ "$root_ubivol" ] && ubirmvol /dev/$ubidev1 -N rootfs || true
+	[ "$data_ubivol" ] && ubirmvol /dev/$ubidev1 -N rootfs_data || true
 
 	# re-create fakerootfs volume and write backup image
-	if ! ubimkvol /dev/$ubidev -N $FKROOT_VOLNAME -s $fkroot_length; then
+	if ! ubimkvol /dev/$ubidev1 -N $FKROOT_VOLNAME -s $fkroot_length; then
 		echo "cannot create fakeroot volume"
 		return 1;
 	else
@@ -79,7 +96,7 @@ buffalo_upgrade_prepare_ubi() {
 	fi
 
 	# re-create kernel volume
-	if ! ubimkvol /dev/$ubidev -N $KERN_VOLNAME -s $kernel_length; then
+	if ! ubimkvol /dev/$ubidev1 -N $KERN_VOLNAME -s $kernel_length; then
 		echo "cannot create kernel volume"
 		return 1;
 	fi
@@ -91,18 +108,22 @@ buffalo_upgrade_prepare_ubi() {
 	else
 		root_size_param="-s $rootfs_length"
 	fi
-	if ! ubimkvol /dev/$ubidev -N rootfs $root_size_param; then
+	if ! ubimkvol /dev/$ubidev1 -N rootfs $root_size_param; then
 		echo "cannot create rootfs volume"
 		return 1;
 	fi
 
 	# create rootfs_data for non-ubifs rootfs
 	if [ "$rootfs_type" != "ubifs" ]; then
-		if ! ubimkvol /dev/$ubidev -N rootfs_data -m; then
+		if ! ubimkvol /dev/$ubidev1 -N rootfs_data -m; then
 			echo "cannot initialize rootfs_data volume"
 			return 1
 		fi
 	fi
+
+	# remove kernel volume from second ubi partition
+	[ "$kern2_ubivol" ] && ubirmvol /dev/$ubidev2 -N $KERN_VOLNAME || true
+
 	sync
 	return 0
 }
