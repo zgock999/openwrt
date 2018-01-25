@@ -29,7 +29,7 @@
 		led-boot = &power_white;
 		led-failsafe = &diag;
 		led-running = &power_white;
-		led-upgrade = &diag;
+		led-upgrade = &power_white;
 	};
 
 	chosen {
