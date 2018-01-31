@@ -60,6 +60,8 @@ buffalo_upgrade_prepare_ubi() {
 	local fkroot_ubivol="$( nand_find_volume $ubidev1 $FKROOT_VOLNAME )"
 	local root_ubivol="$( nand_find_volume $ubidev1 rootfs )"
 	local data_ubivol="$( nand_find_volume $ubidev1 rootfs_data )"
+	# (ubi_rootfs_data vol in stock firmware)
+	local buf_data_ubivol="$( nand_find_volume $ubidev1 ubi_rootfs_data )"
 	# (kernel vol in second partition)
 	local kern2_ubivol="$( nand_find_volume $ubidev2 $KERN_VOLNAME )"
 
@@ -85,12 +87,14 @@ buffalo_upgrade_prepare_ubi() {
 	[ "$fkroot_ubivol" ] && ubirmvol /dev/$ubidev1 -N $FKROOT_VOLNAME || true
 	[ "$root_ubivol" ] && ubirmvol /dev/$ubidev1 -N rootfs || true
 	[ "$data_ubivol" ] && ubirmvol /dev/$ubidev1 -N rootfs_data || true
+	[ "$buf_data_ubivol" ] && ubirmvol /dev/$ubidev1 -N ubi_rootfs_data || true
 
 	# re-create fakerootfs volume and write backup image
 	if ! ubimkvol /dev/$ubidev1 -N $FKROOT_VOLNAME -s $fkroot_length; then
 		echo "cannot create fakeroot volume"
 		return 1;
 	else
+		fkroot_ubivol="$( nand_find_volume $ubidev1 $FKROOT_VOLNAME )"
 		echo "write fakeroot image to $fkroot_ubivol"
 		ubiupdatevol /dev/$fkroot_ubivol -s $fkroot_length /tmp/fkroot.bin
 	fi
