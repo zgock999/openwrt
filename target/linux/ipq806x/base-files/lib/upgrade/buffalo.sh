@@ -132,6 +132,42 @@ buffalo_upgrade_prepare_ubi() {
 	return 0
 }
 
+# Flash the UBI image to MTD partition
+buffalo_upgrade_ubinized() {
+	local ubi_file="$1"
+	local mtdnum="$(find_mtd_index "$CI_BUF_UBIPART")"
+	local mtdnum2="$(find_mtd_index "$CI_BUF_UBIPART2")"
+
+	if [ ! "$mtdnum" ]; then
+		echo "cannot find mtd device $CI_BUF_UBIPART"
+		umount -a
+		reboot -f
+	fi
+
+	# search second ubi device from $CI_BUF_UBIPART2
+	local ubidev2="$( nand_find_ubi "$CI_BUF_UBIPART2" )"
+	if [ ! "$ubidev2" ] && [ -n "$mtdnum2" ]; then
+		ubiattach -m "$mtdnum2"
+		sync
+		ubidev2="$( nand_find_ubi "$CI_BUF_UBIPART2" )"
+	fi
+
+	# get kernel vol in second partition
+	local kern2_ubivol="$( nand_find_volume $ubidev2 $KERN_VOLNAME )"
+
+	# remove kernel volume from second ubi partition
+	[ "$kern2_ubivol" ] && ubirmvol /dev/$ubidev2 -N $KERN_VOLNAME || true
+
+	local mtddev="/dev/mtd${mtdnum}"
+	ubidetach -p "${mtddev}" || true
+	sync
+	ubiformat "${mtddev}" -y -f "${ubi_file}"
+	ubiattach -p "${mtddev}"
+
+	CI_UBIPART="$CI_BUF_UBIPART"
+	nand_do_upgrade_success
+}
+
 # Extract tar image and write to UBI volume
 buffalo_upgrade_tar() {
 	local tar_file="$1"
@@ -170,7 +206,7 @@ platform_do_upgrade_buffalo() {
 	case "$file_type" in
 		"ubi")
 			CI_UBIPART="$CI_BUF_UBIPART"
-			nand_upgrade_ubinized $1
+			buffalo_upgrade_ubinized $1
 			;;
 		"ubifs")
 			echo "not compatible sysupgrade file."
