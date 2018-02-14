@@ -18,34 +18,6 @@ define BuildFirmware/DCS930/squashfs
 endef
 BuildFirmware/DCS930/initramfs=$(call BuildFirmware/OF/initramfs,$(1),$(2),$(3))
 
-define Build/buffalo-factory-image
-	$(eval devname=$(word 1,$(1)))
-	$(eval product=$(word 2,$(1)))
-	$(eval region=$(word 3,$(1)))
-	$(eval language=$(word 4,$(1)))
-	$(STAGING_DIR_HOST)/bin/buffalo-enc -p $(product) -v $(BUFFALO_TAG_VERSION) \
-		-i $(KDIR)/$(devname)-kernel.bin -o $(KDIR)/$(devname)-kernel.bin.enc
-	$(STAGING_DIR_HOST)/bin/buffalo-enc -p $(product) -v $(BUFFALO_TAG_VERSION) \
-		-i $(KDIR)/root.squashfs -o $(KDIR)/root.squashfs.enc
-	$(STAGING_DIR_HOST)/bin/buffalo-tag \
-		-b $(product) -p $(product) -a $(BUFFALO_TAG_PLATFORM) \
-		-v $(BUFFALO_TAG_VERSION) -m $(BUFFALO_TAG_MINOR) \
-		-f 1 -r $(region) -l $(language) \
-		-i $(KDIR)/$(devname)-kernel.bin.enc \
-		-i $(KDIR)/root.squashfs.enc \
-		-o $@
-endef
-
-define Build/buffalo-tftp-image
-	( \
-		echo -n -e "# Airstation FirmWare\nrun u_fw\nreset\n\n" | \
-			dd bs=512 count=1 conv=sync; \
-		dd if=$@; \
-	) > $@.tmp && \
-	$(STAGING_DIR_HOST)/bin/buffalo-tftp -i $@.tmp -o $@.new
-	mv $@.new $@
-endef
-
 kernel_size_wl341v3=917504
 rootfs_size_wl341v3=2949120
 define BuildFirmware/WL-341V3/squashfs
@@ -102,22 +74,3 @@ define LegacyDevice/WL-341V3
   DEVICE_TITLE := Sitecom WL-341 v3
 endef
 LEGACY_DEVICES += WL-341V3
-
-
-define Device/whr-g300n
-  DTS := WHR-G300N
-  BLOCKSIZE := 64k
-  IMAGE_SIZE := 3801088
-  BUFFALO_TAG_PLATFORM := ram
-  BUFFALO_TAG_VERSION := 1.76
-  BUFFALO_TAG_MINOR := 1.01
-  DEVICE_TITLE := Buffalo WHR-G300N
-  IMAGES += factory-EU.bin factory-JP.bin tftp.bin
-  IMAGE/factory-EU.bin := \
-    buffalo-factory-image whr-g300n WHR-G300N EU mlang8
-  IMAGE/factory-JP.bin := \
-    buffalo-factory-image whr-g300n WHR-G300N JP jp
-  IMAGE/tftp.bin := \
-    $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | buffalo-tftp-image
-endef
-TARGET_DEVICES += whr-g300n
