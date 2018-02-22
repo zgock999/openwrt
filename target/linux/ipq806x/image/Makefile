@@ -22,8 +22,7 @@ define Build/buffalofakeroot
 endef
 
 define Build/buffalocksum
-	$(eval chkimage=$(1))
-	echo -ne "\x$$(od -A n -t u1 $(chkimage) | \
+	echo -ne "\x$$(od -A n -t u1 $(1) | \
 		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}')" \
 			>> $(1)
 endef
