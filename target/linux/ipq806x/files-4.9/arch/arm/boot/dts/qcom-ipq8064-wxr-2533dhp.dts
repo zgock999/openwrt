@@ -11,7 +11,6 @@
 		device_type = "memory";
 	};
 
-/* unknown */
 	reserved-memory {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -112,6 +111,16 @@
 					function = "rgmii2";
 					drive-strength = <8>;
 					bias-disable;
+				};
+			};
+
+			usb_pwr_en_pins: usb_pwr_en_pins {
+				mux{
+					pins = "gpio68";
+					function = "gpio";
+					drive-strength = <12>;
+					bias-pull-down;
+					output-high;
 				};
 			};
 		};
@@ -250,6 +259,9 @@
 
 		usb30@0 {
 			status = "ok";
+
+			pinctrl-0 = <&usb_pwr_en_pins>;
+			pinctrl-names = "default";
 		};
 
 		usb30@1 {
