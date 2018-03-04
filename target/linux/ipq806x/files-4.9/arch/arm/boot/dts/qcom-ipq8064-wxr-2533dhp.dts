@@ -297,12 +297,12 @@
 					#size-cells = <1>;
 
 					firmware1@0 {
-						label = "firmware1";
+						label = "ubi";
 						reg = <0x0000000 0x4000000>;
 					};
 
 					firmware2@4000000 {
-						label = "firmware2";
+						label = "rootfs_1";
 						reg = <0x4000000 0x4000000>;
 					};
 				};

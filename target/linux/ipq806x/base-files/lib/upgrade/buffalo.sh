@@ -4,13 +4,15 @@
 
 . /lib/functions.sh
 
-# 'firmware1' and 'firmware2' partition on NAND contains
-# the kernel and fakerootfs. WXR-2533DHP uses the kernel
-# image in 'firmware1'. However, U-Boot checks 'firmware1'
-# and 'firmware2' images when booting, and if they are not
-# match, do write back image to 'firmware1' from 'firmware2'.
-CI_BUF_UBIPART="${CI_BUF_UBIPART:-firmware1}"
-CI_BUF_UBIPART2="${CI_BUF_UBIPART2:-firmware2}"
+# 'ubi' and 'rootfs_1' partition on NAND contains kernel
+# fakerootfs. WXR-2533DHP always uses kernel image in
+# 'ubi'. However, U-Boot checks 'ubi' and 'rootfs_1'
+# images when booting, and if they are not match, do
+# write back image to 'ubi' from 'rootfs_1'.
+# If U-Boot detects that 'rootfs_1' is broken, write
+# back image to 'rootfs_1' from 'ubi'.
+CI_BUF_UBIPART="${CI_BUF_UBIPART:-ubi}"
+CI_BUF_UBIPART2="${CI_BUF_UBIPART2:-rootfs_1}"
 KERN_VOLNAME="${KERN_VOLNAME:-kernel}"
 FKROOT_VOLNAME="${FKROOT_VOLNAME:-ubi_rootfs}"
 
@@ -62,7 +64,7 @@ buffalo_upgrade_prepare_ubi() {
 	local data_ubivol="$( nand_find_volume $ubidev1 rootfs_data )"
 	# (ubi_rootfs_data vol in stock firmware)
 	local buf_data_ubivol="$( nand_find_volume $ubidev1 ubi_rootfs_data )"
-	# (kernel vol in second partition)
+	# (kernel vol in second ubi partition)
 	local kern2_ubivol="$( nand_find_volume $ubidev2 $KERN_VOLNAME )"
 
 	# remove ubiblock device of rootfs
@@ -89,7 +91,7 @@ buffalo_upgrade_prepare_ubi() {
 	[ "$data_ubivol" ] && ubirmvol /dev/$ubidev1 -N rootfs_data || true
 	[ "$buf_data_ubivol" ] && ubirmvol /dev/$ubidev1 -N ubi_rootfs_data || true
 
-	# re-create fakerootfs volume and write backup image
+	# re-create fakerootfs volume and write image from backup
 	if ! ubimkvol /dev/$ubidev1 -N $FKROOT_VOLNAME -s $fkroot_length; then
 		echo "cannot create fakeroot volume"
 		return 1;
