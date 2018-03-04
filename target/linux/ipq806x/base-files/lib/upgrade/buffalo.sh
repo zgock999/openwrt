@@ -18,7 +18,6 @@ FKROOT_VOLNAME="${FKROOT_VOLNAME:-ubi_rootfs}"
 
 buffalo_upgrade_prepare_ubi() {
 	local rootfs_length="$1"
-	local rootfs_type="$2"
 
 	# search first ubi partition
 	local mtdnum1="$( find_mtd_index "$CI_BUF_UBIPART" )"
@@ -108,23 +107,15 @@ buffalo_upgrade_prepare_ubi() {
 	fi
 
 	# re-create rootfs volume
-	local root_size_param
-	if [ "$rootfs_type" = "ubifs" ]; then
-		root_size_param="-m"
-	else
-		root_size_param="-s $rootfs_length"
-	fi
-	if ! ubimkvol /dev/$ubidev1 -N rootfs $root_size_param; then
+	if ! ubimkvol /dev/$ubidev1 -N rootfs -s $rootfs_length; then
 		echo "cannot create rootfs volume"
 		return 1;
 	fi
 
 	# create rootfs_data for non-ubifs rootfs
-	if [ "$rootfs_type" != "ubifs" ]; then
-		if ! ubimkvol /dev/$ubidev1 -N rootfs_data -m; then
-			echo "cannot initialize rootfs_data volume"
-			return 1
-		fi
+	if ! ubimkvol /dev/$ubidev1 -N rootfs_data -m; then
+		echo "cannot initialize rootfs_data volume"
+		return 1
 	fi
 
 	# remove kernel volume from second ubi partition
@@ -183,7 +174,7 @@ buffalo_upgrade_tar() {
 
 	local rootfs_type="$(identify_tar "$tar_file" ${board_dir}/root)"
 
-	buffalo_upgrade_prepare_ubi "$rootfs_length" "$rootfs_type"
+	buffalo_upgrade_prepare_ubi "$rootfs_length"
 
 	local ubidev="$( nand_find_ubi "$CI_BUF_UBIPART" )"
 	local kern_ubivol="$(nand_find_volume $ubidev $KERN_VOLNAME)"
@@ -203,15 +194,17 @@ platform_do_upgrade_buffalo() {
 
 	local file_type=$(identify $1)
 
-	[ ! "$(find_mtd_index "$CI_BUF_UBIPART")" ] && CI_BUF_UBIPART="rootfs"
+	if [ ! "$(find_mtd_index "$CI_BUF_UBIPART")" ]; then
+		echo "cannot find ubi mtd partition: $CI_BUF_UBIPART"
+		return 1
+	fi
 
 	case "$file_type" in
 		"ubi")
-			CI_UBIPART="$CI_BUF_UBIPART"
 			buffalo_upgrade_ubinized $1
 			;;
 		"ubifs")
-			echo "not compatible sysupgrade file."
+			echo "incompatible sysupgrade file."
 			return 1
 			;;
 		*)		buffalo_upgrade_tar $1;;
