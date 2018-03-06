@@ -302,12 +302,12 @@
 					#address-cells = <1>;
 					#size-cells = <1>;
 
-					firmware1@0 {
+					ubi@0 {
 						label = "ubi";
 						reg = <0x0000000 0x4000000>;
 					};
 
-					firmware2@4000000 {
+					rootfs_1@4000000 {
 						label = "rootfs_1";
 						reg = <0x4000000 0x4000000>;
 					};
