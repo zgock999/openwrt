@@ -100,7 +100,7 @@ define Device/buffalo_wxr-2533dhp
 	KERNEL_IN_UBI := 1
 	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
 	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
-	IMAGES += firmware.ubi
+	IMAGES := sysupgrade.bin firmware.ubi
 	IMAGE/firmware.ubi := buffalofakeroot | \
 		buffalocksum $$(FAKESQUASHFS) | append-ubi | check-size $$$$(IMAGE_SIZE)
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0 -kmod-ata-core -kmod-ata-ahci | \
