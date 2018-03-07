@@ -3,15 +3,6 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
-define Build/mkbuffaloimg
-	$(STAGING_DIR_HOST)/bin/mkbuffaloimg -B $(DEV_NAME) \
-		-R $$(($(subst k, * 1024,$(ROOTFS_SIZE)))) \
-		-K $$(($(subst k, * 1024,$(KERNEL_SIZE)))) \
-		-i $@ -o $@.new
-	mv $@.new $@
-endef
-DEVICE_VARS += ROOTFS_SIZE DEV_NAME
-
 define Build/buffalofakeroot
 	rm -rf $(KDIR)/$(BOARD_NAME).fakefs $(FAKESQUASHFS)
 	mkdir $(KDIR)/$(BOARD_NAME).fakefs
@@ -20,6 +11,7 @@ define Build/buffalofakeroot
 		-noappend -root-owned -nopad -b 65536 \
 		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
 endef
+DEVICE_VARS += FAKESQUASHFS
 
 define Build/buffalocksum
 	echo -ne "\x$$(od -A n -t u1 $(1) | \
@@ -96,6 +88,25 @@ define Device/ZyXELImage
 	IMAGE/mmcblk0p5-rootfs.bin := append-rootfs | pad-rootfs | pad-to $$$${BLOCKSIZE}
 	IMAGE/mmcblk0p4-kernel.bin := append-kernel
 endef
+
+define Device/buffalo_wxr-2533dhp
+	$(call Device/LegacyImage)
+	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
+	BLOCKSIZE := 128k
+	BOARD_NAME := wxr-2533dhp
+	DEVICE_TITLE := Buffalo WXR-2533DHP
+	PAGESIZE := 2048
+	IMAGE_SIZE := 65536k
+	KERNEL_IN_UBI := 1
+	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
+	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
+	IMAGES += firmware.ubi
+	IMAGE/firmware.ubi := buffalofakeroot | \
+		buffalocksum $$(FAKESQUASHFS) | append-ubi | check-size $$$$(IMAGE_SIZE)
+	DEVICE_PACKAGES := ath10k-firmware-qca99x0 -kmod-ata-core -kmod-ata-ahci | \
+		-kmod-ata-ahci-platform
+endef
+TARGET_DEVICES += buffalo_wxr-2533dhp
 
 define Device/avm_fritzbox-4040
 	$(call Device/FitImageLzma)
@@ -328,25 +339,4 @@ define Device/zyxel_nbg6817
 endef
 TARGET_DEVICES += zyxel_nbg6817
 
-define Device/buffalo_wxr-2533dhp
-	$(call Device/LegacyImage)
-	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
-	BLOCKSIZE := 128k
-	BOARD_NAME := wxr-2533dhp
-	DEV_NAME := WXR-2533DHP
-	DEVICE_TITLE := Buffalo WXR-2533DHP
-	PAGESIZE := 2048
-	KERNEL_SIZE := 4096k
-	KERNEL_IN_UBI := 1
-	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
-	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
-	IMAGES := firmware.ubi sysupgrade.bin factory.bin
-	IMAGE/firmware.ubi := buffalofakeroot | \
-		buffalocksum $$(FAKESQUASHFS) | append-ubi
-	IMAGE/factory.bin := append-kernel | append-rootfs | pad-rootfs | mkbuffaloimg
-	DEVICE_PACKAGES := ath10k-firmware-qca99x0 -kmod-ata-core -kmod-ata-ahci | \
-		-kmod-ata-ahci-platform
-endef
-DEVICE_VARS += FAKESQUASHFS
-TARGET_DEVICES += buffalo_wxr-2533dhp
 $(eval $(call BuildImage))
