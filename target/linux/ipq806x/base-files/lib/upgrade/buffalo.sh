@@ -16,6 +16,22 @@ CI_BUF_UBIPART2="${CI_BUF_UBIPART2:-rootfs_1}"
 KERN_VOLNAME="${KERN_VOLNAME:-kernel}"
 FKROOT_VOLNAME="${FKROOT_VOLNAME:-ubi_rootfs}"
 
+buffalo_get_dump(){
+	local offset="$1"
+	local size="$2"
+	local ptn="$3"
+	local fkroot="$4"
+
+	hexdump -v -s $offset -n $size -e "$ptn" $fkroot
+}
+
+buffalo_calc_cksum(){
+	local dump="$*"
+
+	echo $dump | tr -s ' ' '\n' | \
+		awk '{s+=$0}END{printf "%x", 255-s%256}'
+}
+
 buffalo_upgrade_prepare_ubi() {
 	local rootfs_length="$1"
 
@@ -117,6 +133,17 @@ buffalo_upgrade_prepare_ubi() {
 		echo "cannot initialize rootfs_data volume"
 		return 1
 	fi
+
+	local cksum="$(buffalo_get_dump 157 1 '1/1 "%02x"' $fkroot_ubivol)"
+	local calc_cksum= \
+		"$(buffalo_calc_cksum $(buffalo_get_dump 0 157 '1/1 "%01d "' $fkroot_ubivol))"
+
+	if [ ! "$cksum" = "$calc_cksum" ]; then
+		echo "checksum in fakeroot and calculated checksum are not matched!"
+		echo "$cksum, $calc_cksum"
+		exit 1
+	fi
+	echo "checksum in fakeroot is good"
 
 	# remove kernel volume from second ubi partition
 	[ "$kern2_ubivol" ] && ubirmvol /dev/$ubidev2 -N $KERN_VOLNAME || true
