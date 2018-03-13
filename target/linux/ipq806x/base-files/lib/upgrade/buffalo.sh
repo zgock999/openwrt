@@ -135,8 +135,7 @@ buffalo_upgrade_prepare_ubi() {
 	fi
 
 	local cksum="$(buffalo_get_dump 157 1 '1/1 "%02x"' $fkroot_ubivol)"
-	local calc_cksum= \
-		"$(buffalo_calc_cksum $(buffalo_get_dump 0 157 '1/1 "%01d "' $fkroot_ubivol))"
+	local calc_cksum="$(buffalo_calc_cksum $(buffalo_get_dump 0 157 '1/1 "%01d "' $fkroot_ubivol))"
 
 	if [ ! "$cksum" = "$calc_cksum" ]; then
 		echo "checksum in fakeroot and calculated checksum are not matched!"
@@ -175,14 +174,24 @@ buffalo_upgrade_ubinized() {
 	# get kernel vol in second partition
 	local kern2_ubivol="$( nand_find_volume $ubidev2 $KERN_VOLNAME )"
 
-	# remove kernel volume from second ubi partition
-	[ "$kern2_ubivol" ] && ubirmvol /dev/$ubidev2 -N $KERN_VOLNAME || true
-
 	local mtddev="/dev/mtd${mtdnum}"
 	ubidetach -p "${mtddev}" || true
 	sync
 	ubiformat "${mtddev}" -y -f "${ubi_file}"
 	ubiattach -p "${mtddev}"
+
+	local cksum="$(buffalo_get_dump 157 1 '1/1 "%02x"' $fkroot_ubivol)"
+	local calc_cksum="$(buffalo_calc_cksum $(buffalo_get_dump 0 157 '1/1 "%01d "' $fkroot_ubivol))"
+
+	if [ ! "$cksum" = "$calc_cksum" ]; then
+		echo "checksum in fakeroot and calculated checksum are not matched!"
+		echo "$cksum, $calc_cksum"
+		exit 1
+	fi
+	echo "checksum in fakeroot is good"
+
+	# remove kernel volume from second ubi partition
+	[ "$kern2_ubivol" ] && ubirmvol /dev/$ubidev2 -N $KERN_VOLNAME || true
 
 	CI_UBIPART="$CI_BUF_UBIPART"
 	nand_do_upgrade_success
