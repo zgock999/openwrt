@@ -118,7 +118,7 @@
 				mux{
 					pins = "gpio68";
 					function = "gpio";
-					drive-strength = <2>;
+					drive-strength = <12>;
 					bias-pull-down;
 					output-high;
 				};
