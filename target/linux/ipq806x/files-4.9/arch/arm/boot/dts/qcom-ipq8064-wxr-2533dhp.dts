@@ -25,10 +25,10 @@
 		serial0 = &gsbi4_serial;
 		mdio-gpio0 = &mdio0;
 
-		led-boot = &power_white;
+		led-boot = &power;
 		led-failsafe = &diag;
-		led-running = &power_white;
-		led-upgrade = &power_white;
+		led-running = &power;
+		led-upgrade = &power;
 	};
 
 	chosen {
@@ -485,7 +485,7 @@
 			gpios = <&qcom_pinmux 26 GPIO_ACTIVE_LOW>;
 		};
 
-		power_white: power_white {
+		power: power {
 			label = "wxr-2533dhp:white:power";
 			gpios = <&qcom_pinmux 53 GPIO_ACTIVE_HIGH>;
 		};
