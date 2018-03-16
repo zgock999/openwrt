@@ -32,7 +32,7 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyMSM0,115200n8 ubi.mtd=0 rootfstype=squashfs";
+		bootargs = "rootfstype=squashfs noinitrd";
 		linux,stdout-path = "serial0:115200n8";
 	};
 
