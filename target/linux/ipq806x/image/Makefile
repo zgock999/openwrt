@@ -3,6 +3,22 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
+define Build/buffalofakeroot
+	rm -rf $(KDIR)/$(BOARD_NAME).fakefs $(FAKESQUASHFS)
+	mkdir $(KDIR)/$(BOARD_NAME).fakefs
+	$(STAGING_DIR_HOST)/bin/mksquashfs4 \
+		$(KDIR)/$(BOARD_NAME).fakefs $(FAKESQUASHFS) \
+		-noappend -root-owned -nopad -b 65536 \
+		$(if $(SOURCE_DATE_EPOCH),-fixed-time $(SOURCE_DATE_EPOCH))
+endef
+DEVICE_VARS += FAKESQUASHFS
+
+define Build/buffalocksum
+	echo -ne "\x$$(od -A n -t u1 $(1) | \
+		tr -s ' ' '\n' | awk '{s+=$$0}END{printf "%x", 255-s%256}')" \
+		>> $(1)
+endef
+
 define Device/Default
 	PROFILES := Default
 	KERNEL_DEPENDS = $$(wildcard $(DTS_DIR)/$$(DEVICE_DTS).dts)
@@ -72,6 +88,24 @@ define Device/ZyXELImage
 	IMAGE/mmcblk0p5-rootfs.bin := append-rootfs | pad-rootfs | pad-to $$$${BLOCKSIZE}
 	IMAGE/mmcblk0p4-kernel.bin := append-kernel
 endef
+
+define Device/buffalo_wxr-2533dhp
+	$(call Device/LegacyImage)
+	DEVICE_DTS := qcom-ipq8064-wxr-2533dhp
+	BLOCKSIZE := 128k
+	BOARD_NAME := wxr-2533dhp
+	DEVICE_TITLE := Buffalo WXR-2533DHP
+	PAGESIZE := 2048
+	IMAGE_SIZE := 65536k
+	KERNEL_IN_UBI := 1
+	FAKESQUASHFS := $(KDIR)/$$(BOARD_NAME).fakesquashfs
+	UBINIZE_PARTS = ubi_rootfs=$$(FAKESQUASHFS)
+	IMAGES := sysupgrade.bin firmware.ubi
+	IMAGE/firmware.ubi := buffalofakeroot | \
+		buffalocksum $$(FAKESQUASHFS) | append-ubi | check-size $$$$(IMAGE_SIZE)
+	DEVICE_PACKAGES := ath10k-firmware-qca99x0
+endef
+TARGET_DEVICES += buffalo_wxr-2533dhp
 
 define Device/compex_wpq864
 	$(call Device/FitImage)

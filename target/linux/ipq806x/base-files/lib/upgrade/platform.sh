@@ -10,6 +10,9 @@ platform_check_image() {
 
 platform_do_upgrade() {
 	case "$(board_name)" in
+	buffalo,wxr-2533dhp)
+		platform_do_upgrade_buffalo "$ARGV"
+		;;
 	compex,wpq864|\
 	netgear,d7800 |\
 	netgear,r7500 |\
