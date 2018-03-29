@@ -24,12 +24,11 @@
 	aliases {
 		serial0 = &gsbi4_serial;
 		mdio-gpio0 = &mdio0;
-/*
-		led-boot = &power;
-		led-failsafe = &general;
-		led-running = &power;
-		led-upgrade = &general;
-*/
+
+		led-boot = &power_green;
+		led-failsafe = &power_green;
+		led-running = &power_green;
+		led-upgrade = &power_green;
 	};
 
 	chosen {
@@ -396,7 +395,7 @@
 			gpios = <&qcom_pinmux 9 GPIO_ACTIVE_HIGH>;
 		};
 
-		power_green {
+		power_green: power_green {
 			label = "wg2600hp:green:power";
 			gpios = <&qcom_pinmux 14 GPIO_ACTIVE_HIGH>;
 		};
