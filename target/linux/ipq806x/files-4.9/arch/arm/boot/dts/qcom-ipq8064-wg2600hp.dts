@@ -38,12 +38,32 @@
 
 	soc {
 		pinmux@800000 {
+			button_pins: button_pins {
+				mux {
+					pins = "gpio16", "gpio54";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-up;
+				};
+			};
+
 			i2c4_pins: i2c4_pinmux {
 				mux {
 					pins = "gpio12", "gpio13";
 					function = "gsbi4";
 					drive-strength = <12>;
 					bias-disable;
+				};
+			};
+
+			led_pins: led_pins {
+				mux {
+					pins = "gpio6", "gpio7", "gpio8", "gpio9", "gpio14",
+						"gpio15", "gpio55", "gpio56", "gpio57", "gpio58",
+						"gpio64", "gpio65";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-down;
 				};
 			};
 
@@ -330,6 +350,90 @@
 		rpm@108000 {
 			pinctrl-0 = <&i2c4_pins>;
 			pinctrl-names = "default";
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-0 = <&button_pins>;
+		pinctrl-names = "default";
+
+		wps {
+			label = "wps";
+			gpios = <&qcom_pinmux 16 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_WPS_BUTTON>;
+		};
+
+		reset {
+			label = "reset";
+			gpios = <&qcom_pinmux 54 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RESTART>;
+		};
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		pinctrl-0 = <&led_pins>;
+		pinctrl-names = "default";
+
+		converter_green {
+			label = "wg2600hp:green:converter";
+			gpios = <&qcom_pinmux 6 GPIO_ACTIVE_HIGH>;
+		};
+
+		power_red {
+			label = "wg2600hp:red:power";
+			gpios = <&qcom_pinmux 7 GPIO_ACTIVE_HIGH>;
+		};
+
+		active_green {
+			label = "wg2600hp:green:active";
+			gpios = <&qcom_pinmux 8 GPIO_ACTIVE_HIGH>;
+		};
+
+		active_red {
+			label = "wg2600hp:red:active";
+			gpios = <&qcom_pinmux 9 GPIO_ACTIVE_HIGH>;
+		};
+
+		power_green {
+			label = "wg2600hp:green:power";
+			gpios = <&qcom_pinmux 14 GPIO_ACTIVE_HIGH>;
+		};
+
+		converter_red {
+			label = "wg2600hp:red:converter";
+			gpios = <&qcom_pinmux 15 GPIO_ACTIVE_HIGH>;
+		};
+
+		wlan2g_green {
+			label = "wg2600hp:green:wlan2g";
+			gpios = <&qcom_pinmux 55 GPIO_ACTIVE_HIGH>;
+		};
+
+		wlan2g_red {
+			label = "wg2600hp:red:wlan2g";
+			gpios = <&qcom_pinmux 56 GPIO_ACTIVE_HIGH>;
+		};
+
+		wlan5g_green {
+			label = "wg2600hp:green:wlan5g";
+			gpios = <&qcom_pinmux 57 GPIO_ACTIVE_HIGH>;
+		};
+
+		wlan5g_red {
+			label = "wg2600hp:red:wlan5g";
+			gpios = <&qcom_pinmux 58 GPIO_ACTIVE_HIGH>;
+		};
+
+		tv_green {
+			label = "wg2600hp:green:tv";
+			gpios = <&qcom_pinmux 64 GPIO_ACTIVE_HIGH>;
+		};
+
+		tv_red {
+			label = "wg2600hp:red:tv";
+			gpios = <&qcom_pinmux 65 GPIO_ACTIVE_HIGH>;
 		};
 	};
 };
