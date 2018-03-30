@@ -210,7 +210,7 @@
 					APPSBLENV@2a0000 {
 						label = "APPSBLENV";
 						reg = <0x2a0000 0x10000>;
-						read-only;
+						/*read-only;*/
 					};
 
 					PRODUCTDATA: PRODUCTDATA@2b0000 {
