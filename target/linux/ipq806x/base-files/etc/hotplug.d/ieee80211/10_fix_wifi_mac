@@ -16,7 +16,7 @@ case "$board" in
 		echo $(macaddr_add $(mtd_get_mac_ascii devinfo hw_mac_addr) $(($PHYNBR + 1)) ) > /sys${DEVPATH}/macaddress
 		;;
 	nec,wg2600hp)
-		echo $(macaddr_add $(mtd_get_mac_binary ART 12) $(($PHYNBR - 1)) ) > /sys${DEVPATH}/macaddress
+		echo $(macaddr_add $(mtd_get_mac_binary PRODUCTDATA 12) $((1 - $PHYNBR)) ) > /sys${DEVPATH}/macaddress
 		;;
 	netgear,d7800 |\
 	netgear,r7500v2 |\
