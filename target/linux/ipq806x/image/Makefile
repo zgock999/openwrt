@@ -109,8 +109,10 @@ define Device/nec_wg2600hp
 	KERNEL_SIZE := 2048k
 	BOARD_NAME := wg2600hp
 	DEVICE_TITLE := NEC Aterm WG2600HP
-	IMAGES := sysupgrade.bin
-	IMAGE/sysupgrade := append-kernel | pad-to $$$${KERNEL_SIZE} | append-rootfs | pad-rootfs | append-metadata
+	IMAGES := sysupgrade.bin kernel.bin rootfs.bin
+	IMAGE/sysupgrade.bin := append-kernel | pad-to $$$${KERNEL_SIZE} | append-rootfs | pad-rootfs | append-metadata
+	IMAGE/kernel.bin := append-kernel
+	IMAGE/rootfs.bin := append-rootfs | pad-rootfs
 	DEVICE_PACKAGES := ath10k-firmware-qca99x0
 endef
 TARGET_DEVICES += nec_wg2600hp
