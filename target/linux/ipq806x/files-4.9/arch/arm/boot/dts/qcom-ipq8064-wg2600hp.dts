@@ -219,7 +219,7 @@
 						read-only;
 					};
 
-					ART: ART@2e0000 {
+					ART@2e0000 {
 						label = "ART";
 						reg = <0x2e0000 0x40000>;
 						read-only;
