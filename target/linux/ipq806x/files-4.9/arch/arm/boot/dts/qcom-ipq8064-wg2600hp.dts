@@ -287,7 +287,7 @@
 		pcie1: pci@1b700000 {
 			status = "ok";
 			reset-gpio = <&qcom_pinmux 48 GPIO_ACTIVE_HIGH>;
-			pinctrl-0 = <&pcie0_pins>;
+			pinctrl-0 = <&pcie1_pins>;
 			pinctrl-names = "default";
 			force_gen1 = <1>;
 		};
