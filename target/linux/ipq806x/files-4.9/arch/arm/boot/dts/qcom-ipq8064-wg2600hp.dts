@@ -109,7 +109,7 @@
 				};
 			};
 
-			usb_pwr_en_pin: usb_pwr_en_pin {
+			usb_pwr_en_pins: usb_pwr_en_pins {
 				mux {
 					pins = "gpio22";
 					function = "gpio";
@@ -268,6 +268,9 @@
 
 		usb30@0 {
 			status = "ok";
+
+			pinctrl-0 = <&usb_pwr_en_pins>;
+			pinctrl-names = "default";
 		};
 
 		usb30@1 {
