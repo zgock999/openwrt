@@ -39,7 +39,7 @@
 		pinmux@800000 {
 			button_pins: button_pins {
 				mux {
-					pins = "gpio16", "gpio54";
+					pins = "gpio16", "gpio54", "gpio24", "gpio25";
 					function = "gpio";
 					drive-strength = <2>;
 					bias-pull-up;
@@ -370,6 +370,20 @@
 			label = "reset";
 			gpios = <&qcom_pinmux 54 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
+		};
+
+		bridge {
+			label = "bridge";
+			gpios = <&qcom_pinmux 24 GPIO_ACTIVE_LOW>;
+			linux,code = <BTN_0>;
+			linux,input-type = <EV_SW>;
+		};
+
+		converter {
+			label = "converter";
+			gpios = <&qcom_pinmux 25 GPIO_ACTIVE_LOW>;
+			linux,code = <BTN_0>;
+			linux,input-type = <EV_SW>;
 		};
 	};
 
