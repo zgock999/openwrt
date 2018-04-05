@@ -234,7 +234,7 @@
 					TINY@360000 {
 						label = "TINY";
 						reg = <0x360000 0x500000>;
-						read-only;
+						/*read-only;*/
 					};
 
 					kernel@860000 {
