@@ -1,6 +1,8 @@
---- a/drivers/mtd/devices/m25p80.c	2017-07-12 22:42:41.000000000 +0900
-+++ b/drivers/mtd/devices/m25p80.c	2017-07-14 14:44:35.414057600 +0900
-@@ -253,10 +253,25 @@
+diff --git a/drivers/mtd/devices/m25p80.c b/drivers/mtd/devices/m25p80.c
+index 00eea6f..5fe23fd 100644
+--- a/drivers/mtd/devices/m25p80.c
++++ b/drivers/mtd/devices/m25p80.c
+@@ -307,10 +307,25 @@ static int m25p_remove(struct spi_device *spi)
  {
  	struct m25p	*flash = spi_get_drvdata(spi);
  
@@ -26,7 +28,7 @@
  /*
   * Do NOT add to this array without reading the following:
   *
-@@ -327,6 +342,7 @@
+@@ -385,6 +400,7 @@ static struct spi_driver m25p80_driver = {
  	.id_table	= m25p_ids,
  	.probe	= m25p_probe,
  	.remove	= m25p_remove,
