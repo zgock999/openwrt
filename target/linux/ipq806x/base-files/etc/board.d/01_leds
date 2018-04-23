@@ -18,7 +18,7 @@ compex,wpq864)
 nec,wg2600hp)
 	ucidef_set_led_wlan "wlan2g" "WLAN2G" "${boardname}:green:wlan2g" "phy1tpt"
 	ucidef_set_led_wlan "wlan5g" "WLAN5G" "${boardname}:green:wlan5g" "phy0tpt"
-	ucidef_set_led_netdev "wan" "WAN" "${boardname}:green:active" "eth0"
+	ucidef_set_led_switch "wan" "WAN" "${boardname}:green:active" "switch0" "0x1e"
 	;;
 netgear,d7800 |\
 netgear,r7500 |\
