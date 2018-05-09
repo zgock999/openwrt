@@ -22,7 +22,7 @@ include $(INCLUDE_DIR)/package.mk
 define KernelPackage/mt76-default
   SUBMENU:=Wireless Drivers
   DEPENDS:= \
-	+kmod-mac80211 @PCI_SUPPORT @!LINUX_3_18 \
+	+kmod-mac80211 @PCI_SUPPORT @USB_SUPPORT @!LINUX_3_18 \
 	+@DRIVER_11AC_SUPPORT +@DRIVER_11N_SUPPORT +@DRIVER_11W_SUPPORT
 endef
 
@@ -43,7 +43,7 @@ endef
 define KernelPackage/mt76x2
   $(KernelPackage/mt76-default)
   TITLE:=MediaTek MT76x2 wireless driver
-  DEPENDS+=+kmod-mt76-core
+  DEPENDS+=+kmod-mt76-core +kmod-usb-core
   FILES:=\
 	$(PKG_BUILD_DIR)/mt76x2e.ko \
 	$(PKG_BUILD_DIR)/mt76x2u.ko
