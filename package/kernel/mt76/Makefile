@@ -6,11 +6,10 @@ PKG_RELEASE=1
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
 
-PKG_SOURCE_URL:=https://github.com/openwrt/mt76
+PKG_SOURCE_URL:=https://github.com/LorenzoBianconi/mt76
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_DATE:=2018-04-18
-PKG_SOURCE_VERSION:=e2eedc9229dad9b9d653ad0abb4f3571d1676148
-PKG_MIRROR_HASH:=5bf8879814ffb498228a070e5f8ebedd06cbf4c286a7875e8616d26f154be6ac
+PKG_SOURCE_VERSION:=12e381c8a23ea398954ed234b1e5672db664b4c2
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_BUILD_PARALLEL:=1
@@ -46,8 +45,9 @@ define KernelPackage/mt76x2
   TITLE:=MediaTek MT76x2 wireless driver
   DEPENDS+=+kmod-mt76-core
   FILES:=\
-	$(PKG_BUILD_DIR)/mt76x2e.ko
-  AUTOLOAD:=$(call AutoProbe,mt76x2e)
+	$(PKG_BUILD_DIR)/mt76x2e.ko \
+	$(PKG_BUILD_DIR)/mt76x2u.ko
+  AUTOLOAD:=$(call AutoProbe,mt76x2e mt76x2u)
 endef
 
 define KernelPackage/mt7603
