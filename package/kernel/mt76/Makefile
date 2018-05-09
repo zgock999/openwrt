@@ -46,7 +46,8 @@ define KernelPackage/mt76x2
   DEPENDS+=+kmod-mt76-core +kmod-usb-core
   FILES:=\
 	$(PKG_BUILD_DIR)/mt76x2e.ko \
-	$(PKG_BUILD_DIR)/mt76x2u.ko
+	$(PKG_BUILD_DIR)/mt76x2u.ko \
+	$(PKG_BUILD_DIR)/mt76x2-common.ko
   AUTOLOAD:=$(call AutoProbe,mt76x2e mt76x2u)
 endef
 
